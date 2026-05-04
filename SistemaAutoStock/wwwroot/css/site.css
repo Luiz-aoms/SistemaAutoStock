@@ -1,0 +1,232 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* MENU LATERAL ADM PROFESSOR*/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter";
+}
+
+body {
+    height: 900vh;
+}
+
+
+nav.menu-lateral {
+    width: 250px;
+    height: 100%;
+    background-color: #151a37;
+    padding: 40px 0 1%;
+    box-shadow: 3px 0 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    transition: .7s;
+}
+
+.btn-expandir {
+    font-size: 22px;
+    width: 100%;
+    text-align: center;
+}
+
+    .btn-expandir > i {
+        color: #ffffff;
+    }
+
+ul {
+    height: 100%;
+    list-style-type: none;
+}
+
+    ul li.item-menu:hover {
+        text-decoration: underline;
+        text-decoration-color: #FFFF;
+        transition: .7s;
+    }
+
+    ul li.item-menu {
+        transition: .7s;
+        width: 100%;
+    }
+
+    ul li.ativo {
+        background-color: #ffffff59;
+        margin: 0;
+        padding: 0;
+    }
+
+.item-menu a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 20px 4%;
+    display: flex;
+    padding: 35px;
+    line-height: 40px;
+    padding-left: 18px;
+}
+
+ul li.item-menu a:hover {
+    color: rgb(255, 255, 255);
+    transition: .5s;
+}
+
+ul li.item-menu a .txt-link {
+    margin-left: 40px;
+}
+
+ul li.item-menu a .icon > i {
+    font-size: 22px;
+}
+
+
+
+
+
+#meuElemento, .ins-btn {
+    margin-left: 360px;
+    margin-right: 60px
+}
+
+
+:root {
+    --bg: #ffffff;
+    --accent: #0b84ff;
+    --muted: #6b7280;
+    --border: #e6e9ee;
+    --danger: #ef4444;
+    --radius: 10px;
+    --shadow: 0 4px 12px rgba(16,24,40,0.06);
+    --padding: 10px;
+    --avatar-size: 48px;
+    --login-bg: #2e07eb;
+    --login-hover: #0151ab;
+    --login-active: #005ac1;
+    --text-color: #white;
+    --radius: 12px;
+    --shadow: 0 6px 18px rgba(37,99,235,0.25);
+}
+
+/* Container */
+.user-widget {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: calc(var(--padding) * 0.75);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* left area: avatar + text */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* avatar */
+.avatar {
+    position: relative;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    min-width: var(--avatar-size);
+    border-radius: 999px;
+    background: linear-gradient(180deg, #f3f7ff, #ffffff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+}
+
+/* online dot */
+.status-dot {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 12px;
+    height: 12px;
+    background: #22c55e; /* verde */
+    border: 2px solid var(--bg);
+    border-radius: 999px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+/* text */
+.user-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+.user-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* logout button */
+.logout-btn {
+    margin-left: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: transform .08s ease, background .12s ease, box-shadow .12s ease;
+    color: #0f172a;
+}
+
+    /* hover / focus styles */
+    .logout-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+        background: rgba(11,132,255,0.05);
+    }
+
+    .logout-btn:focus {
+        outline: 3px solid rgba(11,132,255,0.18);
+        outline-offset: 2px;
+    }
+
+#Container-Estoque {
+    margin-left: 320px;
+}
+
