@@ -31,7 +31,11 @@ body {
 }
 
 body {
-    height: 900vh;
+    height: 100vh;
+}
+
+body, html{
+    overflow-x: hidden;
 }
 
 
@@ -230,3 +234,7 @@ ul li.item-menu a .icon > i {
     margin-left: 320px;
 }
 
+/* Isso vai forçar o menu a ficar na frente de qualquer cartão do dashboard */
+.dropdown-menu {
+    z-index: 9999 !important;
+}

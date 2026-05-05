@@ -9,12 +9,26 @@
 
 <div style="margin-left: 260px; padding: 20px; transition: 0.3s;" id="main-dashboard-content">
 
-    <h1 class="text-dark"><i class="bi bi-speedometer2"></i> Painel de Controle</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item active">Visão Geral do Estoque</li>
-    </ol>
+    <div class="d-flex justify-content-between align-items-center mb-5" style="position: relative; z-index: 1050;">
+        <div>
+            <h1 class="text-dark mb-0"><i class="bi bi-speedometer2"></i> Painel de Controle</h1>
+            <ol class="breadcrumb mb-0 mt-1">
+                <li class="breadcrumb-item active">Visão Geral do Estoque</li>
+            </ol>
+        </div>
 
-    <div class="row">
+        <div class="d-flex gap-2">
+            <button class="btn btn-danger shadow-sm d-flex align-items-center fw-semibold mr-2" type="button" onclick="exportarPDF()">
+                <i class="bi bi-file-earmark-pdf-fill me-2"></i> PDF
+            </button>
+
+            <button class="btn btn-success shadow-sm d-flex align-items-center fw-semibold" type="button" onclick="exportarPNG()">
+                <i class="bi bi-file-image-fill me-2"></i> Imagem (PNG)
+            </button>
+        </div>
+    </div>
+
+    <div class="row" style="position: relative; z-index: 0;">
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-primary text-white shadow h-100 py-2">
                 <div class="card-body">
@@ -75,8 +89,11 @@
     <div class="row">
         <div class="col-lg-8 mb-4">
             <div class="card shadow">
-                <div class="card-header py-3">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-primary"><i class="bi bi-bar-chart-line-fill"></i> Top 5 Peças em Estoque</h6>
+                    <button class="btn btn-sm btn-outline-primary" onclick="inverterOrdemBarras()" title="Inverter Ordem">
+                        <i id="iconeOrdemBarras" class="bi bi-sort-down"></i>
+                    </button>
                 </div>
                 <div class="card-body">
                     <div style="height: 300px;">
@@ -99,29 +116,58 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-success"><i class="bi bi-cash-stack"></i> Valor Patrimonial por Peça (Qtd x Preço)</h6>
+                    <button class="btn btn-sm btn-outline-success" onclick="inverterOrdemValor()" title="Inverter Ordem">
+                        <i id="iconeOrdemValor" class="bi bi-sort-down"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="meuGraficoValorTotal"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <script>
-        // Usamos o DOMContentLoaded para garantir que o HTML carregue antes do gráfico
+        // Declaramos as variáveis dos gráficos globalmente para podermos alterá-las nos botões
+        let graficoBarrasObj;
+        let graficoValorTotalObj;
+
+        // Controles de estado para saber se está do maior pro menor (false) ou menor pro maior (true)
+        let ordemCrescenteBarras = false;
+        let ordemCrescenteValor = false;
+
         document.addEventListener("DOMContentLoaded", function () {
 
-            // Recebendo os dados do C#
             const nomesPecas = [@Html.Raw(Model.NomesParaGrafico ?? "''")];
-            const valoresPecas = [@Html.Raw(Model.ValoresParaGrafico ?? "0")];
+            const quantidadesPecas = [@Html.Raw(Model.ValoresParaGrafico ?? "0")];
+            const valoresPatrimonio = [@Html.Raw(Model.ValoresTotaisParaGrafico ?? "0")];
 
             // 1. Desenhando Gráfico de Barras
             const ctxBar = document.getElementById('meuGraficoBarras');
             if (ctxBar) {
-                new Chart(ctxBar, {
+                graficoBarrasObj = new Chart(ctxBar, {
                     type: 'bar',
                     data: {
-                        labels: nomesPecas,
+                        labels: [...nomesPecas],
                         datasets: [{
                             label: 'Quantidade em Estoque',
-                            data: valoresPecas,
+                            data: [...quantidadesPecas],
                             backgroundColor: 'rgba(13, 110, 253, 0.8)',
                             borderColor: 'rgba(13, 110, 253, 1)',
                             borderWidth: 1
@@ -142,10 +188,10 @@
                 new Chart(ctxDonut, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Estoque Bom', 'Estoque Crítico'],
+                        labels: ['Estoque Bom', 'Estoque Médio', 'Estoque Crítico'],
                         datasets: [{
-                            data: [@Model.EstoqueBom, @Model.BaixoEstoque],
-                            backgroundColor: ['#198754', '#dc3545'],
+                            data: [@Model.EstoqueBom, @Model.EstoqueMedio, @Model.BaixoEstoque],
+                            backgroundColor: ['#198754', '#ffc107', '#dc3545'],
                             hoverOffset: 4
                         }]
                     },
@@ -155,6 +201,178 @@
                     }
                 });
             }
+
+            // 3. Desenhando Gráfico (Valor Patrimonial)
+            const ctxValorTotal = document.getElementById('meuGraficoValorTotal');
+            if (ctxValorTotal) {
+                graficoValorTotalObj = new Chart(ctxValorTotal, {
+                    type: 'bar',
+                    data: {
+                        labels: [...nomesPecas],
+                        datasets: [{
+                            label: 'Valor Total (R$)',
+                            data: [...valoresPatrimonio],
+                            backgroundColor: 'rgba(25, 135, 84, 0.8)',
+                            borderColor: 'rgba(25, 135, 84, 1)',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return 'R$ ' + value.toLocaleString('pt-BR');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         });
+
+        // --- FUNÇÕES DE ORDENAÇÃO DOS GRÁFICOS ---
+
+        function inverterOrdemBarras() {
+            if (!graficoBarrasObj) return;
+
+            let dados = graficoBarrasObj.data.datasets[0].data;
+            let labels = graficoBarrasObj.data.labels;
+
+            let lista = [];
+            for (let i = 0; i < dados.length; i++) {
+                lista.push({ label: labels[i], valor: dados[i] });
+            }
+
+            ordemCrescenteBarras = !ordemCrescenteBarras;
+            lista.sort((a, b) => ordemCrescenteBarras ? a.valor - b.valor : b.valor - a.valor);
+
+            for (let i = 0; i < lista.length; i++) {
+                graficoBarrasObj.data.labels[i] = lista[i].label;
+                graficoBarrasObj.data.datasets[0].data[i] = lista[i].valor;
+            }
+
+            let icone = document.getElementById('iconeOrdemBarras');
+            if (ordemCrescenteBarras) {
+                icone.classList.replace('bi-sort-down', 'bi-sort-up');
+            } else {
+                icone.classList.replace('bi-sort-up', 'bi-sort-down');
+            }
+
+            graficoBarrasObj.update();
+        }
+
+        function inverterOrdemValor() {
+            if (!graficoValorTotalObj) return;
+
+            let dados = graficoValorTotalObj.data.datasets[0].data;
+            let labels = graficoValorTotalObj.data.labels;
+
+            let lista = [];
+            for (let i = 0; i < dados.length; i++) {
+                lista.push({ label: labels[i], valor: dados[i] });
+            }
+
+            ordemCrescenteValor = !ordemCrescenteValor;
+            lista.sort((a, b) => ordemCrescenteValor ? a.valor - b.valor : b.valor - a.valor);
+
+            for (let i = 0; i < lista.length; i++) {
+                graficoValorTotalObj.data.labels[i] = lista[i].label;
+                graficoValorTotalObj.data.datasets[0].data[i] = lista[i].valor;
+            }
+
+            let icone = document.getElementById('iconeOrdemValor');
+            if (ordemCrescenteValor) {
+                icone.classList.replace('bi-sort-down', 'bi-sort-up');
+            } else {
+                icone.classList.replace('bi-sort-up', 'bi-sort-down');
+            }
+
+            graficoValorTotalObj.update();
+        }
+
+        // --- FUNÇÕES DE EXPORTAÇÃO (VERSÃO ATUALIZADA) ---
+
+        // 1. Exportar para PDF
+        // --- FUNÇÕES DE EXPORTAÇÃO (VERSÃO DEFINITIVA) ---
+
+        // 1. Exportar para PDF
+        function exportarPDF() {
+            var elemento = document.getElementById('main-dashboard-content');
+
+            // --- TRUQUE DO ECRÃ LARGO ---
+            var style = document.createElement('style');
+            style.id = 'temp-print-styles';
+            style.textContent = `
+                        /* Remove a margem da navbar e força uma largura fixa de PC (1300px) */
+                        #main-dashboard-content {
+                            margin-left: 0 !important;
+                            width: 1300px !important;
+                            max-width: none !important;
+                            padding: 30px !important;
+                        }
+                        /* Garante que os gráficos respeitam o tamanho dos seus contentores */
+                        canvas { max-width: 100% !important; }
+                        /* Esconde o botão de exportar para não sair no relatório */
+                        .dropdown { display: none !important; }
+                    `;
+            document.head.appendChild(style);
+
+            // Opções do PDF com redimensionamento automático e proteção contra quebra de página
+            var opcoes = {
+                margin: [0.3, 0.3, 0.3, 0.3], // Margens mais finas
+                filename: 'Relatorio_Dashboard_Estoque.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                pagebreak: { mode: 'avoid-all' }, // Impede que corte elementos a meio
+                // windowWidth ajuda o html2canvas a perceber a largura forçada
+                html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 1300 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+
+            // Damos um pequeno atraso (300ms) para que os gráficos do Chart.js tenham tempo
+            // de se redimensionarem antes de tirar a "fotografia", evitando sobreposições.
+            setTimeout(function () {
+                html2pdf().set(opcoes).from(elemento).save().then(function () {
+                    // Após guardar o PDF, remove o estilo e o ecrã volta ao normal
+                    document.head.removeChild(style);
+                });
+            }, 300);
+        }
+
+        // 2. Exportar para Imagem PNG
+        function exportarPNG() {
+            var elemento = document.getElementById('main-dashboard-content');
+
+            var style = document.createElement('style');
+            style.id = 'temp-print-styles';
+            style.textContent = `
+                        #main-dashboard-content {
+                            margin-left: 0 !important;
+                            width: 1300px !important;
+                            max-width: none !important;
+                            padding: 30px !important;
+                        }
+                        canvas { max-width: 100% !important; }
+                        .dropdown { display: none !important; }
+                    `;
+            document.head.appendChild(style);
+
+            setTimeout(function () {
+                html2canvas(elemento, { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 1300 }).then(function (canvas) {
+                    var link = document.createElement('a');
+                    link.download = 'Captura_Dashboard_Estoque.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    document.head.removeChild(style);
+                });
+            }, 300);
+        }
     </script>
 }

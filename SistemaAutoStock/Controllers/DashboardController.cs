@@ -3,14 +3,14 @@ using SistemaAutoStock.BancoDeDados;
 using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using SistemaAutoStock.ViewModels;
-using System.Linq; // Adicione isso para o Select funcionar sem erro
+using System.Linq;
+using System.Collections.Generic;
 
 namespace SistemaAutoStock.Controllers
 {
     [Authorize(Roles = "Coordenador")]
     public class DashboardController : Controller
     {
-        // Removi o [Route("dashboard")] para não conflitar com o padrão do ASP.NET
         public IActionResult Index()
         {
             Estoque o_Estoque = new Estoque();
@@ -19,27 +19,31 @@ namespace SistemaAutoStock.Controllers
             float qtdAcumulada = 0;
             float valorAcumulado = 0;
             int critico = 0;
+            int medio = 0;
             int bom = 0;
-            List<string> nomes = new List<string>();
-            List<float> quantidades = new List<float>();
+
+            // 1. Criamos uma lista temporária para guardar TODOS os itens e podermos ordená-los
+            var todosOsItens = new List<(string Nome, float Quantidade, float ValorTotal)>();
 
             foreach (DataRow row in dt.Rows)
             {
-                // Tratamento de segurança para evitar erros se o banco vier nulo
                 float q = row["quantidade"] != DBNull.Value ? Convert.ToSingle(row["quantidade"]) : 0;
                 float v = row["valor"] != DBNull.Value ? Convert.ToSingle(row["valor"]) : 0;
 
                 qtdAcumulada += q;
                 valorAcumulado += (q * v);
 
-                if (q <= 5) critico++; else bom++;
+                if (q <= 5) critico++; else if (q <= 10) medio++; else bom++;
 
-                if (nomes.Count < 5)
-                {
-                    nomes.Add(row["nome_peca"]?.ToString() ?? "Sem Nome");
-                    quantidades.Add(q);
-                }
+                string nome = row["nome_peca"]?.ToString() ?? "Sem Nome";
+
+                // Guardamos os dados desta peça na nossa lista temporária
+                todosOsItens.Add((nome, q, q * v));
             }
+
+            // 2. A MÁGICA ACONTECE AQUI: 
+            // Ordenamos pela Quantidade (do maior para o menor) e pegamos os 5 primeiros
+            var top5Itens = todosOsItens.OrderByDescending(item => item.Quantidade).Take(5).ToList();
 
             var viewModel = new DashboardViewModel
             {
@@ -47,10 +51,13 @@ namespace SistemaAutoStock.Controllers
                 QtdTotal = qtdAcumulada,
                 ValorTotal = valorAcumulado.ToString("C2", new System.Globalization.CultureInfo("pt-BR")),
                 BaixoEstoque = critico,
+                EstoqueMedio = medio,
                 EstoqueBom = bom,
-                // O .Select aqui precisa do "using System.Linq;" lá no topo
-                NomesParaGrafico = string.Join(",", nomes.Select(n => $"'{n}'")),
-                ValoresParaGrafico = string.Join(",", quantidades)
+
+                // 3. Extraímos apenas os nomes, quantidades e valores já ordenados!
+                NomesParaGrafico = string.Join(",", top5Itens.Select(x => $"'{x.Nome}'")),
+                ValoresParaGrafico = string.Join(",", top5Itens.Select(x => x.Quantidade.ToString(System.Globalization.CultureInfo.InvariantCulture))),
+                ValoresTotaisParaGrafico = string.Join(",", top5Itens.Select(x => x.ValorTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)))
             };
 
             return View(viewModel);

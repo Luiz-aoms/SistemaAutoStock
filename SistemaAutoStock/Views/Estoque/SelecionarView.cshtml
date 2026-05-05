@@ -8,10 +8,12 @@
 
 <div class="container mt-4" id="Container-Estoque">
     <div class="mb-3 d-flex justify-content-end gap-3">
-        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAvisos">
+        <button type="button" class="btn btn-outline-danger mr-2" data-bs-toggle="modal" data-bs-target="#modalAvisos">
             Avisos
         </button>
-        <a href="/Estoque/NovoItem" class="btn btn-success">+ Novo Item</a>
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNovo">
+            + Novo Item
+        </button>
     </div>
 
     @if (TempData["MsgSucesso"] != null)
@@ -54,7 +56,7 @@
                         @{
                             int qtd = Convert.ToInt32(row["quantidade"]);
                         }
-                        <span class="badge @(qtd <= 5 ? "bg-danger" : "bg-success")">@qtd</span>
+                        <span class="badge @(qtd <= 5 ? "bg-danger" : qtd <= 10 ? "bg-warning" : "bg-success")">@qtd</span>
                     </td>
                     <td>@row["status"]</td>
                     <td>@row["material"]</td>
@@ -167,7 +169,7 @@
 
             <div class="modal-header bg-success text-white py-3">
                 <h5 class="modal-title fw-bold">
-                    <i class="bi bi-plus-circle-fill me-2"></i>Nova Peça Automotiva
+                    <i class="bi bi-plus-circle-fill me-2"></i> Nova Peça Automotiva
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

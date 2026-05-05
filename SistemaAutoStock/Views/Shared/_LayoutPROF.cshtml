@@ -27,27 +27,27 @@
             </div>
 
             <ul>
+                @if (User.IsInRole("Coordenador"))
+                {
+                    <li class="item-menu">
+                        <a asp-controller="Dashboard" asp-action="Index">
+                            <span class="icon"><i class="bi bi-speedometer2"></i></span>
+                            <span class="txt-link">Dashboard</span>
+                        </a>
+                    </li>
+                }
                 <li class="item-menu">
                     <a asp-controller="Estoque" asp-action="Selecionar">
-                        <span class="icon"><i class="bi bi-house"></i></span>
+                        <span class="icon"><i class="bi bi-boxes"></i></span>
                         <span class="txt-link">Estoque</span>
                     </a>
                 </li>
                 <li class="item-menu">
                     <a href="/Estoque/Recomendacoes">
-                        <span class="icon"><i class="bi bi-house"></i></span>
+                        <span class="icon"><i class="bi bi-star-fill"></i></span>
                         <span class="txt-link">Recomendações</span>
                     </a>
                 </li>
-                @if (User.IsInRole("Coordenador"))
-                {
-                    <li class="item-menu">
-                        <a asp-controller="Dashboard" asp-action="Index">
-                            <span class="icon"><i class="bi bi-journals"></i></span>
-                            <span class="txt-link">Cursos</span>
-                        </a>
-                    </li>
-                }
             </ul>
         </nav>
     </header>
