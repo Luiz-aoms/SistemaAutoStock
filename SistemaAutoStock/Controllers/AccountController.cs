@@ -90,7 +90,7 @@ namespace SistemaAutoStock.Controllers
                     // 4. Lógica de Redirecionamento por Perfil (Role)
                     if (await _userManager.IsInRoleAsync(user, "Coordenador"))
                     {
-                        return RedirectToAction("Index", "DashboardCoordenador");
+                        return RedirectToAction("Index", "Dashboard");
                     }
                     else if (await _userManager.IsInRoleAsync(user, "Professor"))
                     {

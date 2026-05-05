@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> signInManager;
 
+
+
 <!DOCTYPE html>
 
 <html>
@@ -32,11 +34,20 @@
                     </a>
                 </li>
                 <li class="item-menu">
-                    <a asp-controller="#" asp-action="#">
-                        <span class="icon"><i class="bi bi-journals"></i></span>
-                        <span class="txt-link">Cursos</span>
+                    <a href="/Estoque/Recomendacoes">
+                        <span class="icon"><i class="bi bi-house"></i></span>
+                        <span class="txt-link">Recomendações</span>
                     </a>
                 </li>
+                @if (User.IsInRole("Coordenador"))
+                {
+                    <li class="item-menu">
+                        <a asp-controller="Dashboard" asp-action="Index">
+                            <span class="icon"><i class="bi bi-journals"></i></span>
+                            <span class="txt-link">Cursos</span>
+                        </a>
+                    </li>
+                }
             </ul>
         </nav>
     </header>
@@ -48,5 +59,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/v/dt/dt-2.3.5/datatables.min.js" integrity="sha384-qH0inyYSCOpaLgM/WSarLVnq0ULwworkGFzUI+E6bpx0DUCIsJePT0TRDnLnkcU1" crossorigin="anonymous"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -7,7 +7,7 @@ using SistemaAutoStock.ViewModels;
 
 namespace SistemaAutoStock.Controllers
 {
-    [Authorize(Roles = "Professor")]
+    [Authorize(Roles = "Professor, Coordenador")]
     [Route("estoque")]
     public class EstoqueController : Controller
     {
@@ -48,7 +48,6 @@ namespace SistemaAutoStock.Controllers
         }
 
         [HttpPost("editar")]
-        [HttpPost]
         public IActionResult AlterarProcessar(EstoqueViewModel o_EstoqueVM)
         {
             try
@@ -56,12 +55,15 @@ namespace SistemaAutoStock.Controllers
                 if (ModelState.IsValid)
                 {
                     Estoque o_Estoque = new Estoque();
+
+                    // 1. Mapeia os campos básicos
                     MapearVMparaModel(o_EstoqueVM, o_Estoque);
 
+                    // 2. Garante o ID para a atualização
                     o_Estoque.id_peca = o_EstoqueVM.IdPeca;
 
-                    // Se já são números, apenas atribua. 
-                    // O erro do "20000" a gente resolve na configuração global abaixo.
+                    // 3. Atribuição direta (Sem Convert ou Parse)
+                    // Se o valor for nulo na VM, ele salva como 0 no banco
                     o_Estoque.peso = o_EstoqueVM.Peso ?? 0;
                     o_Estoque.valor = o_EstoqueVM.Valor ?? 0;
 
@@ -71,7 +73,7 @@ namespace SistemaAutoStock.Controllers
             }
             catch (Exception ex)
             {
-                TempData["MsgErro"] = "Erro na conversão: " + ex.Message;
+                TempData["MsgErro"] = "Erro ao salvar: " + ex.Message;
             }
             return RedirectToAction("Selecionar");
         }
@@ -100,6 +102,12 @@ namespace SistemaAutoStock.Controllers
             model.peso = vm.Peso;
             model.valor = vm.Valor;
             model.tipo = vm.Tipo;
+        }
+
+        [HttpGet("recomendacoes")]
+        public IActionResult Recomendacoes()
+        {
+            return View();
         }
     }
 }

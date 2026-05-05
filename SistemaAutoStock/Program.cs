@@ -6,13 +6,12 @@ using SistemaAutoStock.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adiciona serviços no container
+// --- 1. CONFIGURAÇÃO DE SERVIÇOS (CONTAINER) ---
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<appDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-// Esta configuração já diz ao sistema que você vai usar Roles!
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<appDbContext>()
     .AddDefaultTokenProviders();
@@ -27,9 +26,18 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 1;
 });
 
+// Configuração do Cookie de Login e Acesso Negado
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.LogoutPath = "/Account/Logout";
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- 2. CONFIGURAÇÃO DO PIPELINE (MIDDLEWARES) ---
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -39,21 +47,22 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// IMPORTANTE: A localização deve vir antes do Routing ou logo após
+var supportedCultures = new[] { "en-US" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture("en-US")
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+app.UseRequestLocalization(localizationOptions);
+
 app.UseRouting();
 
+// A ordem aqui é sagrada: Authentication antes de Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
-
-var supportedCultures = new[] { "en-US" };
-var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture("en-US")
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
-
-app.UseRequestLocalization(localizationOptions);
 
 app.Run();

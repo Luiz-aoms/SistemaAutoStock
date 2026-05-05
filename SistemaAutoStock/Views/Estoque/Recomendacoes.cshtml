@@ -1,0 +1,89 @@
+﻿@{
+    // Define o layout principal que você está usando
+    ViewData["Title"] = "Catálogo de Mercado";
+    Layout = "~/Views/Shared/_LayoutPROF.cshtml";
+
+    // Simulando a lista de produtos reais
+    var produtosWeb = new List<dynamic> {
+        new { Nome = "Óleo Sintético 5W30 Magnatec (1L)", Marca = "Castrol", Categoria = "Lubrificantes", Preco = 54.90, Margem = "40%", Aplicacao = "GM, Ford, Fiat", Icone = "bi-droplet-half", Cor = "text-warning" },
+        new { Nome = "Bateria Automotiva 60Ah (M60GD)", Marca = "Moura", Categoria = "Elétrica", Preco = 459.00, Margem = "30%", Aplicacao = "Universal", Icone = "bi-lightning-charge", Cor = "text-danger" },
+        new { Nome = "Kit Pastilha de Freio Dianteira", Marca = "Cobreq", Categoria = "Freios", Preco = 78.50, Margem = "55%", Aplicacao = "Palio, Uno, Mobi", Icone = "bi-disc", Cor = "text-secondary" },
+        new { Nome = "Jogo de Velas de Ignição (BPR6EY)", Marca = "NGK", Categoria = "Ignição", Preco = 85.00, Margem = "45%", Aplicacao = "Linha VW AP / Fiat Fire", Icone = "bi-plugin", Cor = "text-primary" },
+        new { Nome = "Kit Revisão (Filtros Ar, Óleo, Comb.)", Marca = "Tecfil", Categoria = "Filtros", Preco = 92.00, Margem = "60%", Aplicacao = "Onix, Prisma 1.0", Icone = "bi-funnel", Cor = "text-info" },
+        new { Nome = "Palheta Limpador Parabrisa (22/16)", Marca = "Bosch", Categoria = "Acessórios", Preco = 65.00, Margem = "70%", Aplicacao = "HB20, Gol G6", Icone = "bi-cloud-rain", Cor = "text-success" }
+    };
+}
+
+<div class="container-fluid p-4" style="margin-left: 260px; width: calc(100% - 260px);">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-cart3 text-primary"></i> Catálogo do Mercado</h2>
+            <p class="text-muted">Produtos reais encontrados na web para reposição.</p>
+        </div>
+
+        <div style="min-width: 350px;">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="campoPesquisa" class="form-control border-start-0" placeholder="Pesquisar peça ou marca...">
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" id="gradeProdutos">
+        @foreach (var item in produtosWeb)
+        {
+            <div class="col-12 col-md-6 col-lg-4 produto-item">
+                <div class="card h-100 border-0 shadow-sm transition-hover">
+                    <div class="card-header bg-light border-0 text-center py-4">
+                        <i class="bi @item.Icone @item.Cor" style="font-size: 3rem;"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <span class="badge bg-info">@item.Marca</span>
+                            <small class="text-muted ms-2">@item.Categoria</small>
+                        </div>
+                        <h6 class="fw-bold">@item.Nome</h6>
+                        <p class="small text-muted">@item.Aplicacao</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="fs-5 fw-bold text-primary">R$ @item.Preco.ToString("N2")</span>
+                            <button class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Detalhes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .transition-hover {
+        transition: 0.3s;
+    }
+
+        .transition-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        // Este script faz a barra de pesquisa funcionar "ao vivo"
+        document.getElementById("campoPesquisa").addEventListener("keyup", function () {
+            var termoDigitado = this.value.toLowerCase();
+            var todosProdutos = document.querySelectorAll(".produto-item");
+
+            todosProdutos.forEach(function (produto) {
+                var textoDoProduto = produto.innerText.toLowerCase();
+
+                // Se o texto do card contiver o que foi digitado, mostra. Se não, esconde.
+                if (textoDoProduto.includes(termoDigitado)) {
+                    produto.style.display = "block";
+                } else {
+                    produto.style.display = "none";
+                }
+            });
+        });
+    </script>
+}

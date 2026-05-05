@@ -7,20 +7,26 @@
 }
 
 <div class="container mt-4" id="Container-Estoque">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2><i class="bi bi-box-seam"></i> Gestão de Estoque</h2>
-        <div>
-            <a asp-action="Avisos" class="btn btn-outline-primary me-2">Avisos</a>
-            <a asp-action="Recomendacoes" class="btn btn-outline-info me-2">Recomendações</a>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNovo"> + Novo Item</button>
-        </div>
+    <div class="mb-3 d-flex justify-content-end gap-3">
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAvisos">
+            Avisos
+        </button>
+        <a href="/Estoque/NovoItem" class="btn btn-success">+ Novo Item</a>
     </div>
 
     @if (TempData["MsgSucesso"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show">
-            @TempData["MsgSucesso"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["MsgSucesso"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+        </div>
+    }
+
+    @if (TempData["MsgErro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["MsgErro"]
+            <button type="button" class="btn-close text-black" data-bs-dismiss="alert" aria-label="Close">X</button>
         </div>
     }
 
@@ -29,7 +35,7 @@
             <tr>
                 <th>ID</th>
                 <th>Nome</th>
-                <th>Qtd</th>
+                <th>Quantidade</th>
                 <th>Status</th>
                 <th>Material</th>
                 <th>Peso</th>
@@ -53,7 +59,7 @@
                     <td>@row["status"]</td>
                     <td>@row["material"]</td>
                     <td>@row["peso"] kg</td>
-                    <td>@Convert.ToDecimal(row["valor"]).ToString("C2")</td>
+                    <td>@Convert.ToDecimal(row["valor"]).ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
                     <td>@row["tipo"]</td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit-@row["id_peca"]">
@@ -226,3 +232,162 @@
         </form>
     </div>
 </div>
+<div class="modal fade" id="modalAvisos" tabindex="-1" aria-labelledby="modalAvisosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalAvisosLabel"><i class="bi bi-exclamation-triangle-fill"></i> Alertas de Estoque Crítico</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group list-group-flush">
+                    @{
+                        int avisosCount = 0;
+                        foreach (System.Data.DataRow row in Model.Rows)
+                        {
+                            int qtd = Convert.ToInt32(row["quantidade"]);
+                            if (qtd < 5)
+                            {
+                                avisosCount++;
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@row["nome_peca"]</strong>
+                                        <div class="text-muted small">ID: @row["id_peca"]</div>
+                                    </div>
+                                    <span class="badge bg-danger rounded-pill">Restam @qtd</span>
+                                </li>
+                            }
+                        }
+
+                        if (avisosCount == 0)
+                        {
+                            <div class="text-center text-success my-3">
+                                <i class="bi bi-check-circle fs-1"></i>
+                                <p class="mt-2">Seu estoque está saudável! Nenhuma peça abaixo de 5 unidades.</p>
+                            </div>
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@{
+    /*<div class="modal fade" id="modalRecomendacoes" tabindex="-1" aria-labelledby="modalRecomendacoesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="modalRecomendacoesLabel"><i class="bi bi-cart-plus-fill text-warning"></i> Catálogo Sugerido: Peças de Alta Demanda no Mercado</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-light">
+                <p class="text-muted mb-4">Baseado nas tendências de manutenção automotiva, sugerimos adicionar estes produtos ao seu portfólio para aumentar o giro rápido:</p>
+
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold text-dark">Óleo de Motor Sintético 5W30 (1L)</h6>
+                                    <span class="badge bg-success">Giro Rápido</span>
+                                </div>
+                                <p class="small text-muted mb-3">Marca sugerida: Castrol / Mobil / Selenia. Aplicação: Linha GM (Onix, Prisma), Hyundai (HB20) e Ford.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">Margem média: 40%</span>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                        <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold text-dark">Kit Pastilha de Freio Dianteira</h6>
+                                    <span class="badge bg-danger">Essencial</span>
+                                </div>
+                                <p class="small text-muted mb-3">Marca sugerida: Cobreq / Fras-le. Aplicação: Linha Fiat (Palio, Uno), VW (Gol, Voyage).</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">Margem média: 55%</span>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                        <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold text-dark">Kit Filtros (Ar, Óleo e Combustível)</h6>
+                                    <span class="badge bg-info text-dark">Combo</span>
+                                </div>
+                                <p class="small text-muted mb-3">Marca sugerida: Tecfil / Fram. Excelente para oferecer como "Kit Revisão Básica" para os clientes.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">Margem média: 60%</span>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                        <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold text-dark">Velas de Ignição (Jogo com 4)</h6>
+                                    <span class="badge bg-secondary">Preventiva</span>
+                                </div>
+                                <p class="small text-muted mb-3">Marca sugerida: NGK / Bosch. Aplicação universal (verificar código do motor). Troca recomendada a cada 40.000 km.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">Margem média: 45%</span>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                        <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold text-dark">Bateria Automotiva 60Ah</h6>
+                                    <span class="badge bg-warning text-dark">Alto Valor</span>
+                                </div>
+                                <p class="small text-muted mb-3">Marca sugerida: Moura / Heliar. Produto de necessidade imediata (socorro). Requer logística reversa (sucata).</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">Margem média: 30%</span>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                        <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold text-dark">Palhetas do Limpador de Parabrisa</h6>
+                                    <span class="badge bg-success">Sazonal</span>
+                                </div>
+                                <p class="small text-muted mb-3">Marca sugerida: Dyna / Bosch. Produto com pico de vendas em épocas de chuva. Fácil armazenamento.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold">Margem média: 70%</span>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="modal-footer bg-dark">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Fechar Catálogo</button>
+        </div>
+    </div>
+            </div>
+    </div>*/
+}
