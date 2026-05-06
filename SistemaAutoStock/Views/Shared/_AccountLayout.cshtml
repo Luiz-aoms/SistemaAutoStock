@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div>
+
+        @RenderBody()
+
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            // Busca o input de senha que está dentro do mesmo formulário
+            const passwordInput = document.querySelector('input[name="Password"]') || document.getElementById('passwordInput');
+            // Busca o ícone que está especificamente dentro deste botão
+            const toggleIcon = this.querySelector('i');
+
+            if (!passwordInput || !toggleIcon) {
+                console.error("Erro: Input de senha ou ícone não foram encontrados no HTML.");
+                return;
+            }
+
+            // Alterna o tipo do input
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                // Alterna as classes do Bootstrap Icons de forma segura
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            }
+        });
+    </script>
+</body>
+</html>

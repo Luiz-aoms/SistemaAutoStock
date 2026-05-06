@@ -6,101 +6,129 @@
     Layout = "../Shared/_LayoutPROF.cshtml";
 }
 
-<div class="container mt-4" id="Container-Estoque">
-    <div class="mb-3 d-flex justify-content-end gap-3">
-        <button type="button" class="btn btn-outline-danger mr-2" data-bs-toggle="modal" data-bs-target="#modalAvisos">
-            Avisos
-        </button>
-        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNovo">
-            + Novo Item
-        </button>
+<div class="container-fluid py-4" id="Container-Estoque">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-box-seam me-2 text-primary"></i> Controle de Estoque</h2>
+            <p class="text-muted small mb-0">Gerencie, edite e acompanhe os níveis de peças automotivas cadastradas</p>
+        </div>
+        <div class="acoes-topo-container">
+            <button type="button" class="btn-avisos-outline" data-bs-toggle="modal" data-bs-target="#modalAvisos">
+                <i class="bi bi-exclamation-triangle"></i> Avisos
+            </button>
+            <button type="button" class="btn-novo-item border-" data-bs-toggle="modal" data-bs-target="#modalNovo">
+                <i class="bi bi-plus-lg"></i> Novo Item
+            </button>
+        </div>
     </div>
 
     @if (TempData["MsgSucesso"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> @TempData["MsgSucesso"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <div>@TempData["MsgSucesso"]</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
     @if (TempData["MsgErro"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["MsgErro"]
-            <button type="button" class="btn-close text-black" data-bs-dismiss="alert" aria-label="Close">X</button>
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <div>@TempData["MsgErro"]</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <table class="table border " id="Table-Estoque">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Quantidade</th>
-                <th>Status</th>
-                <th>Material</th>
-                <th>Peso</th>
-                <th>Valor</th>
-                <th>Tipo</th>
-                <th class="text-center">Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (DataRow row in Model.Rows)
-            {
-                <tr>
-                    <td>@row["id_peca"]</td>
-                    <td>@row["nome_peca"]</td>
-                    <td>
-                        @{
-                            int qtd = Convert.ToInt32(row["quantidade"]);
-                        }
-                        <span class="badge @(qtd <= 5 ? "bg-danger" : qtd <= 10 ? "bg-warning" : "bg-success")">@qtd</span>
-                    </td>
-                    <td>@row["status"]</td>
-                    <td>@row["material"]</td>
-                    <td>@row["peso"] kg</td>
-                    <td>@Convert.ToDecimal(row["valor"]).ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
-                    <td>@row["tipo"]</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit-@row["id_peca"]">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#del-@row["id_peca"]">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="Table-Estoque">
+                <thead>
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Nome da Peça</th>
+                        <th>Quantidade</th>
+                        <th>Status</th>
+                        <th>Material</th>
+                        <th>Peso</th>
+                        <th>Valor Unitário</th>
+                        <th>Tipo</th>
+                        <th class="text-center pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (DataRow row in Model.Rows)
+                    {
+                        <tr>
+                            <td class="fw-bold text-secondary ps-4">#@row["id_peca"]</td>
+                            <td class="fw-semibold text-dark">@row["nome_peca"]</td>
+                            <td>
+                                @{
+                                    int qtd = Convert.ToInt32(row["quantidade"]);
+                                }
+                                <span class="badge rounded-pill px-3 py-2 @(qtd <= 5 ? "badge-critico" : qtd <= 10 ? "badge-moderado" : "badge-sucesso")">
+                                    @qtd un
+                                </span>
+                            </td>
+                            <td>
+                                @{
+                                    string status = row["status"].ToString();
+                                    string statusClass = status == "Disponível" ? "text-success bg-success-subtle" :
+                                    status == "Em Uso" ? "text-primary bg-primary-subtle" : "text-danger bg-danger-subtle";
+                                }
+                                <span class="badge @statusClass border px-2.5 py-1.5 fw-semibold rounded-2 text-xs">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 6px; vertical-align: middle;"></i> @status
+                                </span>
+                            </td>
+                            <td class="text-secondary text-sm">@row["material"]</td>
+                            <td class="text-secondary text-sm">@row["peso"] kg</td>
+                            <td class="fw-semibold text-dark">@Convert.ToDecimal(row["valor"]).ToString("C2", new System.Globalization.CultureInfo("pt-BR"))</td>
+                            <td><span class="text-muted bg-light px-2 py-1 rounded text-xs">@row["tipo"]</span></td>
+                            <td class="text-center pe-4">
+                                <div class="d-flex justify-content-center gap-1.5">
+                                    <button class="tabela-acoes-btn btn-tabela-editar" data-bs-toggle="modal" data-bs-target="#edit-@row["id_peca"]" title="Editar Peça">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="tabela-acoes-btn btn-tabela-excluir" data-bs-toggle="modal" data-bs-target="#del-@row["id_peca"]" title="Excluir Peça">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 @foreach (DataRow row in Model.Rows)
 {
     <div class="modal fade" id="edit-@row["id_peca"]" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <form asp-controller="Estoque" asp-action="editar" method="post" class="modal-content shadow-lg border-0">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Editar Peça #@row["id_peca"]</h5>
+            <form asp-controller="Estoque" asp-action="editar" method="post" class="modal-content shadow-lg border-0 rounded-4">
+                <div class="modal-header text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold d-flex align-items-center">
+                        <i class="bi bi-pencil-square me-2"></i> Editar Peça #@row["id_peca"]
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <input type="hidden" name="IdPeca" value="@row["id_peca"]" />
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nome da Peça</label>
+                        <label class="form-label fw-bold text-secondary">Nome da Peça</label>
                         <input type="text" name="NomePeca" value="@row["nome_peca"]" class="form-control" required />
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Quantidade</label>
+                            <label class="form-label fw-bold text-secondary">Quantidade</label>
                             <input type="number" name="Quantidade" value="@row["quantidade"]" class="form-control" required />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Status</label>
+                            <label class="form-label fw-bold text-secondary">Status</label>
+                            <br />
                             <select name="Status" class="form-select">
                                 <option value="Disponível" selected='@(row["status"].ToString() == "Disponível")'>Disponível</option>
                                 <option value="Em Uso" selected='@(row["status"].ToString() == "Em Uso")'>Em Uso</option>
@@ -111,82 +139,75 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Material</label>
+                            <label class="form-label fw-bold text-secondary">Material</label>
                             <input type="text" name="Material" value="@row["material"]" class="form-control" />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Tipo/Categoria</label>
-                            <br />
+                            <label class="form-label fw-bold text-secondary">Tipo/Categoria</label>
                             <input type="text" name="Tipo" value="@row["tipo"]" class="form-control" />
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Peso (kg)</label>
-                            <input type="number" step="0.01" name="Peso"
-                                    value="@Convert.ToDecimal(row["peso"]).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)"
-                                    class="form-control" />
+                            <label class="form-label fw-bold text-secondary">Peso (kg)</label>
+                            <input type="number" step="0.01" name="Peso" value="@Convert.ToDecimal(row["peso"]).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" class="form-control" />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Valor (R$)</label>
-                            <input type="number" step="0.01" name="Valor"
-                                   value="@Convert.ToDecimal(row["valor"]).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)"
-                                   class="form-control" />
+                            <label class="form-label fw-bold text-secondary">Valor (R$)</label>
+                            <input type="number" step="0.01" name="Valor" value="@Convert.ToDecimal(row["valor"]).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" class="form-control" />
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary fw-bold">Salvar Alterações</button>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-save fw-bold px-4 shadow-sm">Salvar Alterações</button>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="modal fade" id="del-@row["id_peca"]" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form asp-controller="Estoque" asp-action="excluir" method="post" class="modal-content border-0 shadow-lg">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <form asp-controller="Estoque" asp-action="excluir" method="post" class="modal-content border-0 shadow-lg rounded-4">
                 <input type="hidden" name="IdPeca" value="@row["id_peca"]" />
-                <div class="modal-body text-center py-5">
-                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
-                    <h4 class="mt-3 fw-bold">Excluir "@row["nome_peca"]"?</h4>
-                    <p class="text-muted">Essa operação não pode ser revertida.</p>
+                <div class="modal-body text-center pt-5 pb-4">
+                    <div class="text-danger mb-3">
+                        <i class="bi bi-exclamation-octagon-fill" style="font-size: 3.5rem;"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Excluir Peça?</h5>
+                    <p class="text-muted small px-2">Tem certeza que deseja apagar permanentemente o item <br><strong class="text-dark">"@row["nome_peca"]"</strong>?</p>
                 </div>
-                <div class="modal-footer bg-light justify-content-center border-0">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-danger px-4 fw-bold">Confirmar Exclusão</button>
+                <div class="modal-footer justify-content-center border-0 bg-transparent pb-4 pt-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3 mx-1" data-bs-dismiss="modal">Voltar</button>
+                    <button type="submit" class="btn btn-danger btn-sm px-4 fw-bold shadow-sm mx-1">Sim, Excluir</button>
                 </div>
             </form>
         </div>
     </div>
 }
 
-
 <div class="modal fade" id="modalNovo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <form asp-controller="Estoque" asp-action="InserirProcessar" method="post" class="modal-content shadow-lg border-0">
-
-            <div class="modal-header bg-success text-white py-3">
-                <h5 class="modal-title fw-bold">
+        <form asp-controller="Estoque" asp-action="InserirProcessar" method="post" class="modal-content shadow-lg border-0 rounded-4">
+            <div class="modal-header text-white py-3 border-0">
+                <h5 class="modal-title fw-bold d-flex align-items-center">
                     <i class="bi bi-plus-circle-fill me-2"></i> Nova Peça Automotiva
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
             <div class="modal-body p-4">
                 <div class="mb-3">
-                    <label class="form-label fw-bold text-dark">Nome do Item</label>
+                    <label class="form-label fw-bold text-secondary">Nome do Item</label>
                     <input type="text" name="NomePeca" class="form-control" placeholder="Ex: Kit Amortecedor Dianteiro" required />
                 </div>
-
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold text-dark">Qtd. Inicial</label>
+                        <label class="form-label fw-bold text-secondary">Qtd. Inicial</label>
                         <input type="number" name="Quantidade" class="form-control" value="0" required min="0" />
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold text-dark">Status</label>
+                        <label class="form-label fw-bold text-secondary">Status</label>
                         <br />
                         <select name="Status" class="form-select">
                             <option value="Disponível">Disponível</option>
@@ -195,28 +216,26 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold text-dark">Material</label>
+                        <label class="form-label fw-bold text-secondary">Material</label>
                         <input type="text" name="Material" class="form-control" placeholder="Ex: Aço Carbono" />
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold text-dark">Categoria/Tipo</label>
+                        <label class="form-label fw-bold text-secondary">Categoria/Tipo</label>
                         <input type="text" name="Tipo" class="form-control" placeholder="Ex: Suspensão" />
                     </div>
                 </div>
-
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold text-dark">Peso</label>
+                        <label class="form-label fw-bold text-secondary">Peso</label>
                         <div class="input-group">
                             <input type="number" step="0.01" name="Peso" class="form-control" placeholder="0.00" />
                             <span class="input-group-text">kg</span>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold text-dark">Valor Unit.</label>
+                        <label class="form-label fw-bold text-secondary">Valor Unit.</label>
                         <div class="input-group">
                             <span class="input-group-text">R$</span>
                             <input type="number" step="0.01" name="Valor" class="form-control" placeholder="0.00" />
@@ -224,172 +243,57 @@
                     </div>
                 </div>
             </div>
-
-            <div class="modal-footer bg-light p-3">
-                <button type="button" class="btn btn-white border px-4" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-success px-4 fw-bold shadow-sm">
-                    Salvar no Estoque
-                </button>
+            <div class="modal-footer bg-light border-0 p-3">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-save px-4 fw-bold shadow-sm">Salvar no Estoque</button>
             </div>
         </form>
     </div>
 </div>
-<div class="modal fade" id="modalAvisos" tabindex="-1" aria-labelledby="modalAvisosLabel" aria-hidden="true">
+
+<div class="modal fade" id="modalAvisos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="modalAvisosLabel"><i class="bi bi-exclamation-triangle-fill"></i> Alertas de Estoque Crítico</h5>
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title fw-bold d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Alertas de Estoque Crítico
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-0">
                 <ul class="list-group list-group-flush">
                     @{
                         int avisosCount = 0;
                         foreach (System.Data.DataRow row in Model.Rows)
                         {
-                            int qtd = Convert.ToInt32(row["quantidade"]);
-                            if (qtd < 5)
+                            int qtdAviso = Convert.ToInt32(row["quantidade"]);
+                            if (qtdAviso < 5)
                             {
                                 avisosCount++;
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
                                     <div>
-                                        <strong>@row["nome_peca"]</strong>
-                                        <div class="text-muted small">ID: @row["id_peca"]</div>
+                                        <strong class="text-dark d-block mb-0">@row["nome_peca"]</strong>
+                                        <div class="text-muted small">ID do Item: #@row["id_peca"]</div>
                                     </div>
-                                    <span class="badge bg-danger rounded-pill">Restam @qtd</span>
+                                    <span class="badge bg-danger rounded-pill px-3 py-2 fw-semibold">Restam @qtdAviso un</span>
                                 </li>
                             }
                         }
 
                         if (avisosCount == 0)
                         {
-                            <div class="text-center text-success my-3">
-                                <i class="bi bi-check-circle fs-1"></i>
-                                <p class="mt-2">Seu estoque está saudável! Nenhuma peça abaixo de 5 unidades.</p>
+                            <div class="text-center text-success my-5 py-4">
+                                <i class="bi bi-check-circle-fill display-4 d-block mb-3"></i>
+                                <p class="fw-bold mb-1 fs-5">Seu estoque está 100% saudável!</p>
+                                <span class="text-muted small">Nenhuma peça abaixo de 5 unidades encontrada.</span>
                             </div>
                         }
                     }
                 </ul>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Fechar Janela</button>
             </div>
         </div>
     </div>
 </div>
-@{
-    /*<div class="modal fade" id="modalRecomendacoes" tabindex="-1" aria-labelledby="modalRecomendacoesLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title" id="modalRecomendacoesLabel"><i class="bi bi-cart-plus-fill text-warning"></i> Catálogo Sugerido: Peças de Alta Demanda no Mercado</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body bg-light">
-                <p class="text-muted mb-4">Baseado nas tendências de manutenção automotiva, sugerimos adicionar estes produtos ao seu portfólio para aumentar o giro rápido:</p>
-
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="fw-bold text-dark">Óleo de Motor Sintético 5W30 (1L)</h6>
-                                    <span class="badge bg-success">Giro Rápido</span>
-                                </div>
-                                <p class="small text-muted mb-3">Marca sugerida: Castrol / Mobil / Selenia. Aplicação: Linha GM (Onix, Prisma), Hyundai (HB20) e Ford.</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-primary fw-bold">Margem média: 40%</span>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-
-                        <div class="col-md-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="fw-bold text-dark">Kit Pastilha de Freio Dianteira</h6>
-                                    <span class="badge bg-danger">Essencial</span>
-                                </div>
-                                <p class="small text-muted mb-3">Marca sugerida: Cobreq / Fras-le. Aplicação: Linha Fiat (Palio, Uno), VW (Gol, Voyage).</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-primary fw-bold">Margem média: 55%</span>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-
-                        <div class="col-md-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="fw-bold text-dark">Kit Filtros (Ar, Óleo e Combustível)</h6>
-                                    <span class="badge bg-info text-dark">Combo</span>
-                                </div>
-                                <p class="small text-muted mb-3">Marca sugerida: Tecfil / Fram. Excelente para oferecer como "Kit Revisão Básica" para os clientes.</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-primary fw-bold">Margem média: 60%</span>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-
-                        <div class="col-md-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="fw-bold text-dark">Velas de Ignição (Jogo com 4)</h6>
-                                    <span class="badge bg-secondary">Preventiva</span>
-                                </div>
-                                <p class="small text-muted mb-3">Marca sugerida: NGK / Bosch. Aplicação universal (verificar código do motor). Troca recomendada a cada 40.000 km.</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-primary fw-bold">Margem média: 45%</span>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-
-                        <div class="col-md-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="fw-bold text-dark">Bateria Automotiva 60Ah</h6>
-                                    <span class="badge bg-warning text-dark">Alto Valor</span>
-                                </div>
-                                <p class="small text-muted mb-3">Marca sugerida: Moura / Heliar. Produto de necessidade imediata (socorro). Requer logística reversa (sucata).</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-primary fw-bold">Margem média: 30%</span>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-
-                        <div class="col-md-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                                <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="fw-bold text-dark">Palhetas do Limpador de Parabrisa</h6>
-                                    <span class="badge bg-success">Sazonal</span>
-                                </div>
-                                <p class="small text-muted mb-3">Marca sugerida: Dyna / Bosch. Produto com pico de vendas em épocas de chuva. Fácil armazenamento.</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-primary fw-bold">Margem média: 70%</span>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Cotar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-            <div class="modal-footer bg-dark">
-                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Fechar Catálogo</button>
-        </div>
-    </div>
-            </div>
-    </div>*/
-}

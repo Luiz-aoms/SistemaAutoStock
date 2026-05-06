@@ -1,9 +1,8 @@
 ﻿@{
-    // Define o layout principal que você está usando
     ViewData["Title"] = "Catálogo de Mercado";
     Layout = "~/Views/Shared/_LayoutPROF.cshtml";
 
-    // Simulando a lista de produtos reais
+    // SIMULANDO UMA LISTA DE PRODUTOS REAIS
     var produtosWeb = new List<dynamic> {
         new { Nome = "Óleo Sintético 5W30 Magnatec (1L)", Marca = "Castrol", Categoria = "Lubrificantes", Preco = 54.90, Margem = "40%", Aplicacao = "GM, Ford, Fiat", Icone = "bi-droplet-half", Cor = "text-warning" },
         new { Nome = "Bateria Automotiva 60Ah (M60GD)", Marca = "Moura", Categoria = "Elétrica", Preco = 459.00, Margem = "30%", Aplicacao = "Universal", Icone = "bi-lightning-charge", Cor = "text-danger" },
@@ -69,7 +68,7 @@
 
 @section Scripts {
     <script>
-        // Este script faz a barra de pesquisa funcionar "ao vivo"
+        ///BARRA DE PESQUISA
         document.getElementById("campoPesquisa").addEventListener("keyup", function () {
             var termoDigitado = this.value.toLowerCase();
             var todosProdutos = document.querySelectorAll(".produto-item");
@@ -77,7 +76,7 @@
             todosProdutos.forEach(function (produto) {
                 var textoDoProduto = produto.innerText.toLowerCase();
 
-                // Se o texto do card contiver o que foi digitado, mostra. Se não, esconde.
+                // SE APARECE OU SOME CARD
                 if (textoDoProduto.includes(termoDigitado)) {
                     produto.style.display = "block";
                 } else {

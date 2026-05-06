@@ -41,7 +41,6 @@ namespace SistemaAutoStock.Controllers
                 todosOsItens.Add((nome, q, q * v));
             }
 
-            // 2. A MÁGICA ACONTECE AQUI: 
             // Ordenamos pela Quantidade (do maior para o menor) e pegamos os 5 primeiros
             var top5Itens = todosOsItens.OrderByDescending(item => item.Quantidade).Take(5).ToList();
 

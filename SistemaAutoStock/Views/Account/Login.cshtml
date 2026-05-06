@@ -2,45 +2,54 @@
 
 @{
     ViewData["Title"] = "Entrar no Sistema";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
 }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h4>@ViewData["Title"]</h4>
-            </div>
-            <div class="card-body">
+<div class="account-container">
+    <div class="account-box shadow-lg border-0">
 
-                <form asp-controller="Account" asp-action="Login" method="post">
-
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                    <div class="form-group mb-3">
-                        <label asp-for="UserName" class="control-label fw-bold"></label>
-                        <input asp-for="UserName" class="form-control" placeholder="Digite seu usuário" />
-                    </div>
-
-                    <div class="form-group mb-4">
-                        <label asp-for="Password" class="control-label fw-bold"></label>
-                        <input asp-for="Password" class="form-control" placeholder="Digite sua senha" />
-                    </div>
-
-                    <div class="form-group d-grid">
-                        <button type="submit" class="btn btn-primary btn-block">Entrar</button>
-                    </div>
-
-                </form>
-            </div>
-            <div class="card-footer text-center">
-                <a asp-action="Register">Ainda não tem uma conta? Crie aqui.</a>
-            </div>
+        <div class="account-header text-center mb-4">
+            <img src="~/images/logo-senai.png" alt="Logo SENAI SC" id="Logo-SENAI-SC" class="mb-2">
+            <h2 class="title-login">Acessar Painel</h2>
+            <p class="text-muted small">Insira suas credenciais para gerenciar o estoque</p>
         </div>
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            @if (TempData["MsgErro"] != null || !ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger border-0 py-2 px-3 rounded-3 small mb-3">
+                    <ul class="mb-0 ps-3 text-danger fw-semibold">
+                        @if (TempData["MsgErro"] != null)
+                        {
+                            <li>@TempData["MsgErro"]</li>
+                        }
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    </ul>
+                </div>
+            }
+
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label fw-semibold"><i class="bi bi-person me-1"></i> Usuário</label>
+                <input asp-for="UserName" class="form-control" placeholder="Digite seu usuário..." autocomplete="off" />
+                <span asp-validation-for="UserName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Password" class="form-label fw-semibold"><i class="bi bi-lock me-1"></i> Senha</label>
+                <div class="password-group">
+                    <input asp-for="Password" type="password" class="form-control" id="passwordInput" placeholder="Digite sua senha...">
+                    <button type="button" class="password-toggle-btn" id="togglePassword" aria-label="Mostrar/Esconder senha">
+                        <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="login-btn w-100">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+            </button>
+        </form>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

@@ -9,7 +9,7 @@
 
 <div style="margin-left: 260px; padding: 20px; transition: 0.3s;" id="main-dashboard-content">
 
-    <div class="d-flex justify-content-between align-items-center mb-5" style="position: relative; z-index: 1050;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
             <h1 class="text-dark mb-0"><i class="bi bi-speedometer2"></i> Painel de Controle</h1>
             <ol class="breadcrumb mb-0 mt-1">
@@ -17,8 +17,8 @@
             </ol>
         </div>
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-danger shadow-sm d-flex align-items-center fw-semibold mr-2" type="button" onclick="exportarPDF()">
+        <div class="d-flex gap-2 container-botoes-exportar">
+            <button class="btn btn-danger shadow-sm d-flex align-items-center fw-semibold" type="button" onclick="exportarPDF()">
                 <i class="bi bi-file-earmark-pdf-fill me-2"></i> PDF
             </button>
 
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="row" style="position: relative; z-index: 0;">
+    <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-primary text-white shadow h-100 py-2">
                 <div class="card-body">
@@ -139,16 +139,13 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
-        // Declaramos as variáveis dos gráficos globalmente para podermos alterá-las nos botões
         let graficoBarrasObj;
         let graficoValorTotalObj;
 
-        // Controles de estado para saber se está do maior pro menor (false) ou menor pro maior (true)
         let ordemCrescenteBarras = false;
         let ordemCrescenteValor = false;
 
@@ -158,7 +155,7 @@
             const quantidadesPecas = [@Html.Raw(Model.ValoresParaGrafico ?? "0")];
             const valoresPatrimonio = [@Html.Raw(Model.ValoresTotaisParaGrafico ?? "0")];
 
-            // 1. Desenhando Gráfico de Barras
+            // 1. Gráfico de Barras
             const ctxBar = document.getElementById('meuGraficoBarras');
             if (ctxBar) {
                 graficoBarrasObj = new Chart(ctxBar, {
@@ -182,7 +179,7 @@
                 });
             }
 
-            // 2. Desenhando Gráfico de Rosca
+            // 2. Gráfico de Rosca
             const ctxDonut = document.getElementById('meuGraficoRosca');
             if (ctxDonut) {
                 new Chart(ctxDonut, {
@@ -202,7 +199,7 @@
                 });
             }
 
-            // 3. Desenhando Gráfico (Valor Patrimonial)
+            // 3. Gráfico de Valor Patrimonial
             const ctxValorTotal = document.getElementById('meuGraficoValorTotal');
             if (ctxValorTotal) {
                 graficoValorTotalObj = new Chart(ctxValorTotal, {
@@ -237,8 +234,7 @@
             }
         });
 
-        // --- FUNÇÕES DE ORDENAÇÃO DOS GRÁFICOS ---
-
+        // Funções de Ordenação
         function inverterOrdemBarras() {
             if (!graficoBarrasObj) return;
 
@@ -297,58 +293,41 @@
             graficoValorTotalObj.update();
         }
 
-        // --- FUNÇÕES DE EXPORTAÇÃO (VERSÃO ATUALIZADA) ---
-
-        // 1. Exportar para PDF
-        // --- FUNÇÕES DE EXPORTAÇÃO (VERSÃO DEFINITIVA) ---
-
-        // 1. Exportar para PDF
+        // Funções de Exportação com Correção de Escopo
         function exportarPDF() {
             var elemento = document.getElementById('main-dashboard-content');
-
-            // --- TRUQUE DO ECRÃ LARGO ---
             var style = document.createElement('style');
             style.id = 'temp-print-styles';
             style.textContent = `
-                        /* Remove a margem da navbar e força uma largura fixa de PC (1300px) */
                         #main-dashboard-content {
                             margin-left: 0 !important;
                             width: 1300px !important;
                             max-width: none !important;
                             padding: 30px !important;
                         }
-                        /* Garante que os gráficos respeitam o tamanho dos seus contentores */
                         canvas { max-width: 100% !important; }
-                        /* Esconde o botão de exportar para não sair no relatório */
-                        .dropdown { display: none !important; }
+                        .container-botoes-exportar { display: none !important; }
                     `;
             document.head.appendChild(style);
 
-            // Opções do PDF com redimensionamento automático e proteção contra quebra de página
             var opcoes = {
-                margin: [0.3, 0.3, 0.3, 0.3], // Margens mais finas
+                margin: [0.3, 0.3, 0.3, 0.3],
                 filename: 'Relatorio_Dashboard_Estoque.pdf',
                 image: { type: 'jpeg', quality: 1 },
-                pagebreak: { mode: 'avoid-all' }, // Impede que corte elementos a meio
-                // windowWidth ajuda o html2canvas a perceber a largura forçada
+                pagebreak: { mode: 'avoid-all' },
                 html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 1300 },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
             };
 
-            // Damos um pequeno atraso (300ms) para que os gráficos do Chart.js tenham tempo
-            // de se redimensionarem antes de tirar a "fotografia", evitando sobreposições.
             setTimeout(function () {
                 html2pdf().set(opcoes).from(elemento).save().then(function () {
-                    // Após guardar o PDF, remove o estilo e o ecrã volta ao normal
                     document.head.removeChild(style);
                 });
             }, 300);
         }
 
-        // 2. Exportar para Imagem PNG
         function exportarPNG() {
             var elemento = document.getElementById('main-dashboard-content');
-
             var style = document.createElement('style');
             style.id = 'temp-print-styles';
             style.textContent = `
@@ -359,7 +338,7 @@
                             padding: 30px !important;
                         }
                         canvas { max-width: 100% !important; }
-                        .dropdown { display: none !important; }
+                        .container-botoes-exportar { display: none !important; }
                     `;
             document.head.appendChild(style);
 

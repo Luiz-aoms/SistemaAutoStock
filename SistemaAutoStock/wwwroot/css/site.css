@@ -1,55 +1,51 @@
+/* ==========================================================================
+   CONFIGURAÇÕES GLOBAIS E RESET
+   ========================================================================== */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+    overflow-x: hidden;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 60px;
-}
-
-/* MENU LATERAL ADM PROFESSOR*/
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Inter";
+    font-family: "Inter", system-ui, sans-serif;
 }
 
 body {
     height: 100vh;
-}
-
-body, html{
     overflow-x: hidden;
+    background-color: #f8fafc;
 }
 
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
 
+/* ==========================================================================
+   MENU LATERAL
+   ========================================================================== */
 nav.menu-lateral {
     width: 250px;
     height: 100%;
-    background-color: #151a37;
+    background-color: #0047b5;
     padding: 40px 0 1%;
-    box-shadow: 3px 0 0;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.15);
     position: fixed;
     top: 0;
     left: 0;
     overflow: hidden;
     transition: .7s;
+    z-index: 1030;
 }
 
 .btn-expandir {
@@ -62,23 +58,25 @@ nav.menu-lateral {
         color: #ffffff;
     }
 
-ul {
+nav.menu-lateral ul {
     height: 100%;
     list-style-type: none;
+    padding: 0;
+    margin: 0;
 }
 
-    ul li.item-menu:hover {
-        text-decoration: underline;
-        text-decoration-color: #FFFF;
-        transition: .7s;
-    }
-
-    ul li.item-menu {
+    nav.menu-lateral ul li.item-menu {
         transition: .7s;
         width: 100%;
     }
 
-    ul li.ativo {
+        nav.menu-lateral ul li.item-menu:hover {
+            text-decoration: underline;
+            text-decoration-color: #FFFF;
+            transition: .7s;
+        }
+
+    nav.menu-lateral ul li.ativo {
         background-color: #ffffff59;
         margin: 0;
         padding: 0;
@@ -88,11 +86,10 @@ ul {
     color: #fff;
     text-decoration: none;
     font-size: 18px;
-    padding: 20px 4%;
     display: flex;
-    padding: 35px;
-    line-height: 40px;
-    padding-left: 18px;
+    align-items: center;
+    padding: 25px 20px;
+    line-height: 1.5;
 }
 
 ul li.item-menu a:hover {
@@ -101,140 +98,302 @@ ul li.item-menu a:hover {
 }
 
 ul li.item-menu a .txt-link {
-    margin-left: 40px;
+    margin-left: 20px;
 }
 
 ul li.item-menu a .icon > i {
     font-size: 22px;
 }
 
-
-
-
+/* ==========================================================================
+   ESTRUTURA DO CONTAINER DE CONTEÚDO
+   ========================================================================== */
+#Container-Estoque {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding: 2rem 2.5rem;
+    transition: all 0.3s ease;
+}
 
 #meuElemento, .ins-btn {
-    margin-left: 360px;
-    margin-right: 60px
+    margin-left: 270px;
+    margin-right: 20px;
 }
 
-
-:root {
-    --bg: #ffffff;
-    --accent: #0b84ff;
-    --muted: #6b7280;
-    --border: #e6e9ee;
-    --danger: #ef4444;
-    --radius: 10px;
-    --shadow: 0 4px 12px rgba(16,24,40,0.06);
-    --padding: 10px;
-    --avatar-size: 48px;
-    --login-bg: #2e07eb;
-    --login-hover: #0151ab;
-    --login-active: #005ac1;
-    --text-color: #white;
-    --radius: 12px;
-    --shadow: 0 6px 18px rgba(37,99,235,0.25);
+@media (max-width: 992px) {
+    #Container-Estoque {
+        margin-left: 0;
+        width: 100%;
+        padding: 1rem;
+    }
 }
 
-/* Container */
-.user-widget {
+/* ==========================================================================
+   TABELA E COMPONENTES MODERNOS DO ESTOQUE
+   ========================================================================== */
+#Table-Estoque {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 10px;
+}
+
+    /* Alinhamento simétrico padrão para a esquerda */
+    #Table-Estoque th,
+    #Table-Estoque td {
+        text-align: left !important;
+        vertical-align: middle !important;
+        padding: 14px 16px !important;
+    }
+
+    #Table-Estoque thead th {
+        background-color: #0047b5;
+        color: #f8fafc;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none !important;
+    }
+
+    /* Força alinhamento idêntico entre cabeçalho e conteúdo das colunas geométricas */
+    #Table-Estoque th:nth-child(1), #Table-Estoque td:nth-child(1), /* ID */
+    #Table-Estoque th:nth-child(3), #Table-Estoque td:nth-child(3), /* Quantidade */
+    #Table-Estoque th:last-child, #Table-Estoque td:last-child { /* Ações */
+        text-align: center !important;
+    }
+
+    #Table-Estoque tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+        #Table-Estoque tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+    #Table-Estoque tbody td {
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+/* Badges de Status */
+.badge-critico {
+    background-color: #fee2e2;
+    color: #ef4444;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.badge-moderado {
+    background-color: #fef3c7;
+    color: #f59e0b;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.badge-sucesso {
+    background-color: #dcfce7;
+    color: #22c55e;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   BOTÕES DO TOPO (ALINHAMENTO E ESTILO)
+   ========================================================================== */
+.acoes-topo-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn-novo-item {
+    background-color: #0047b5 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    margin-left: 12px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: calc(var(--padding) * 0.75);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    gap: 8px;
+    text-decoration: none !important;
 }
 
-/* left area: avatar + text */
-.user-info {
-    display: flex;
+    .btn-novo-item:hover {
+        background-color: #003c96 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 71, 181, 0.2);
+    }
+
+.btn-avisos-outline {
+    background-color: #fee2e2 !important;
+    color: #ef4444 !important;
+    border: 2px solid #fee2e2 !important;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    text-decoration: none !important;
 }
 
-/* avatar */
-.avatar {
-    position: relative;
-    width: var(--avatar-size);
-    height: var(--avatar-size);
-    min-width: var(--avatar-size);
-    border-radius: 999px;
-    background: linear-gradient(180deg, #f3f7ff, #ffffff);
-    display: flex;
+    .btn-avisos-outline:hover {
+        background-color: #e5cbcb !important;
+        transform: translateY(-1px);
+    }
+
+/* ==========================================================================
+   BOTÕES DE AÇÃO INTERNOS DA TABELA
+   ========================================================================== */
+.tabela-acoes-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--accent);
-    border: 1px solid var(--border);
-    box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
-}
-
-/* online dot */
-.status-dot {
-    position: absolute;
-    right: -2px;
-    bottom: -2px;
-    width: 12px;
-    height: 12px;
-    background: #22c55e; /* verde */
-    border: 2px solid var(--bg);
-    border-radius: 999px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-}
-
-/* text */
-.user-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1;
-}
-
-.user-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #0f172a;
-}
-
-.user-sub {
-    font-size: 0.8rem;
-    color: var(--muted);
-}
-
-/* logout button */
-.logout-btn {
-    margin-left: 6px;
-    background: transparent;
-    border: 1px solid var(--border);
-    padding: 6px 10px;
     border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: transform .08s ease, background .12s ease, box-shadow .12s ease;
-    color: #0f172a;
+    border: none;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+    margin: 0 4px;
 }
 
-    /* hover / focus styles */
-    .logout-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
-        background: rgba(11,132,255,0.05);
+.btn-tabela-editar {
+    background-color: rgba(11, 132, 255, 0.1) !important;
+    color: #0b84ff !important;
+}
+
+    .btn-tabela-editar:hover {
+        background-color: #0b84ff !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 8px rgba(11, 132, 255, 0.25);
     }
 
-    .logout-btn:focus {
-        outline: 3px solid rgba(11,132,255,0.18);
-        outline-offset: 2px;
+.btn-tabela-excluir {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+}
+
+    .btn-tabela-excluir:hover {
+        background-color: #ef4444 !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
     }
 
-#Container-Estoque {
-    margin-left: 320px;
+.text-xs {
+    font-size: 12px;
 }
 
-/* Isso vai forçar o menu a ficar na frente de qualquer cartão do dashboard */
-.dropdown-menu {
-    z-index: 9999 !important;
+.text-sm {
+    font-size: 13.5px;
 }
+
+.rounded-4 {
+    border-radius: 12px !important;
+}
+
+/* ==========================================================================
+   ESTILIZAÇÃO DOS MODAIS (SISTEMA AUTOSTOCK)
+   ========================================================================== */
+
+/* Customizações Gerais do Modal */
+.modal-content {
+    border: none !important;
+    border-radius: 16px !important; /* Bordas mais arredondadas e modernas */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+    background-color: #ffffff;
+}
+
+/* Customização dos Headers */
+.modal-header {
+    border-top-left-radius: 16px !important;
+    border-top-right-radius: 16px !important;
+    padding: 1.25rem 1.75rem !important;
+    background-color: #0047b5 !important;
+}
+
+/* Inputs, Selects e Form-controls dentro do modal */
+.modal-body .form-label {
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+    color: #495057 !important;
+}
+
+.modal-body .form-control,
+.modal-body .form-select,
+.modal-body .input-group-text{
+    border-radius: 10px !important;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    font-size: 0.95rem;
+    transition: all 0.2s ease-in-out;
+}
+
+    /* Efeito de foco nos inputs (Glow azul elegante) */
+    .modal-body .form-control:focus,
+    .modal-body .form-select:focus {
+        background-color: #fff;
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+
+/* Ajuste específico para os grupos de input (R$ e kg) */
+.modal-body .input-group {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+    .modal-body .input-group .form-control {
+        border-radius: 0 10px 10px 0 !important;
+    }
+
+    .modal-body .input-group .input-group-text + .form-control {
+        border-radius: 0 10px 10px 0 !important;
+    }
+
+    .modal-body .input-group .form-control + .input-group-text {
+        border-radius: 0 10px 10px 0 !important;
+    }
+
+/* Customização dos Rodapés */
+.modal-footer {
+    border-bottom-left-radius: 16px !important;
+    border-bottom-right-radius: 16px !important;
+    padding: 1.25rem 1.75rem !important;
+    border-top: 1px solid #f1f3f5 !important;
+    background-color: #f8f9fa !important;
+}
+
+    /* Customização de Botões dentro do Modal */
+    .modal-footer .btn-save {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+        border-radius: 10px !important;
+        font-weight: 600;
+        background-color: #0047b5;
+        transition: all 0.2s ease;
+        color: white;
+    }
+
+    .modal-footer .btn-save:hover {
+        background-color: #003c96;
+    }
+
+/* Modal de Alertas/Avisos */
+#modalAvisos .list-group-item {
+    border-left: 4px solid #dc3545; /* Barra vermelha lateral de perigo */
+    transition: background-color 0.2s;
+}
+
+    #modalAvisos .list-group-item:hover {
+        background-color: #fff5f5;
+    }

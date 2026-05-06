@@ -47,7 +47,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// IMPORTANTE: A localização deve vir antes do Routing ou logo após
 var supportedCultures = new[] { "en-US" };
 var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture("en-US")
@@ -57,7 +56,6 @@ app.UseRequestLocalization(localizationOptions);
 
 app.UseRouting();
 
-// A ordem aqui é sagrada: Authentication antes de Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
