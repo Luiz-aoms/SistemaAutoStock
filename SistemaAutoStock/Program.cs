@@ -6,7 +6,7 @@ using SistemaAutoStock.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. CONFIGURAÇÃO DE SERVIÇOS (CONTAINER) ---
+// --- 1. CONFIGURAÇÃO DE SERVIÇOS
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<appDbContext>(options =>
@@ -36,7 +36,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
-// --- 2. CONFIGURAÇÃO DO PIPELINE (MIDDLEWARES) ---
+// --- 2. CONFIGURAÇÃO DO PIPELINE
 
 if (!app.Environment.IsDevelopment())
 {

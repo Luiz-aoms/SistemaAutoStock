@@ -15,7 +15,7 @@
 /* CAIXA BRANCA DE LOGIN */
 .account-box {
     background-color: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(8px); /* Efeito de vidro sutil moderno */
+    backdrop-filter: blur(8px);
     padding: 40px 35px;
     border-radius: 16px;
     max-width: 440px;
@@ -72,7 +72,7 @@ input::placeholder {
 }
 
     .password-group .form-control {
-        padding-right: 45px; /* Espaço para o olho não ficar por cima do texto */
+        padding-right: 45px; 
         width: 100%;
     }
 
@@ -99,7 +99,7 @@ input::placeholder {
 
 /* BOTÃO DE SUBMIT PREMIUM */
 .login-btn {
-    background-color: #0056b3; /* Azul padrão corporativo */
+    background-color: #0056b3; 
     color: #fff;
     border: none;
     border-radius: 8px;

@@ -11,6 +11,7 @@ namespace SistemaAutoStock.Controllers
     [Authorize(Roles = "Coordenador")]
     public class DashboardController : Controller
     {
+        [Route("dashboard")]
         public IActionResult Index()
         {
             Estoque o_Estoque = new Estoque();
@@ -22,7 +23,7 @@ namespace SistemaAutoStock.Controllers
             int medio = 0;
             int bom = 0;
 
-            // 1. Criamos uma lista temporária para guardar TODOS os itens e podermos ordená-los
+            // lista temporária para guardar TODOS os itens e podermos ordená-los
             var todosOsItens = new List<(string Nome, float Quantidade, float ValorTotal)>();
 
             foreach (DataRow row in dt.Rows)
@@ -37,11 +38,11 @@ namespace SistemaAutoStock.Controllers
 
                 string nome = row["nome_peca"]?.ToString() ?? "Sem Nome";
 
-                // Guardamos os dados desta peça na nossa lista temporária
+                // Guarda os dados desta peça na nossa lista temporária
                 todosOsItens.Add((nome, q, q * v));
             }
 
-            // Ordenamos pela Quantidade (do maior para o menor) e pegamos os 5 primeiros
+            // Ordena pela Quantidade (do maior para o menor) e pega os 5 primeiros
             var top5Itens = todosOsItens.OrderByDescending(item => item.Quantidade).Take(5).ToList();
 
             var viewModel = new DashboardViewModel
@@ -53,7 +54,7 @@ namespace SistemaAutoStock.Controllers
                 EstoqueMedio = medio,
                 EstoqueBom = bom,
 
-                // 3. Extraímos apenas os nomes, quantidades e valores já ordenados!
+                // Extraí apenas os nomes, quantidades e valores já ordenados!
                 NomesParaGrafico = string.Join(",", top5Itens.Select(x => $"'{x.Nome}'")),
                 ValoresParaGrafico = string.Join(",", top5Itens.Select(x => x.Quantidade.ToString(System.Globalization.CultureInfo.InvariantCulture))),
                 ValoresTotaisParaGrafico = string.Join(",", top5Itens.Select(x => x.ValorTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)))

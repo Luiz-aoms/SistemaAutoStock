@@ -26,9 +26,7 @@
 
     <script>
         document.getElementById('togglePassword').addEventListener('click', function () {
-            // Busca o input de senha que está dentro do mesmo formulário
             const passwordInput = document.querySelector('input[name="Password"]') || document.getElementById('passwordInput');
-            // Busca o ícone que está especificamente dentro deste botão
             const toggleIcon = this.querySelector('i');
 
             if (!passwordInput || !toggleIcon) {
@@ -36,10 +34,8 @@
                 return;
             }
 
-            // Alterna o tipo do input
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                // Alterna as classes do Bootstrap Icons de forma segura
                 toggleIcon.classList.remove('bi-eye-slash');
                 toggleIcon.classList.add('bi-eye');
             } else {
