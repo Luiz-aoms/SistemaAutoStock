@@ -2,39 +2,69 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-<ul class="navbar-nav">
-    @if (SignInManager.IsSignedIn(User))
-    {
-        <li class="nav-item">
-            <span class="nav-link text-dark fw-bold">Olá, @User.Identity?.Name!</span>  
-        </li>
+<button class="btn btn-primary d-lg-none btn-mobile-toggle" id="btn-toggle-sidebar">
+    <i class="bi bi-list"></i> Menu
+</button>
 
-        @if (User.IsInRole("Coordenador"))
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<nav class="menu-lateral" id="sidebar">
+    <div class="btn-expandir mb-4">
+        <i class="bi bi-boxes"></i> <span class="fw-bold ms-2 text-white">AutoStock</span>
+    </div>
+
+    <ul class="navbar-nav d-flex flex-column h-100">
+        @if (SignInManager.IsSignedIn(User))
         {
-            <li class="nav-item">
-                <a class="nav-link text-danger" asp-controller="Dashboard" asp-action="Index">Área do Coordenador</a>
+            <li class="nav-item mb-3 px-3">
+                <span class="text-light text-opacity-75 small text-uppercase fw-bold">
+                    Olá, @User.Identity?.Name!
+                </span>
+            </li>
+
+            @if (User.IsInRole("Coordenador"))
+            {
+                <li class="item-menu">
+                    <a asp-controller="Dashboard" asp-action="Index">
+                        <span class="icon"><i class="bi bi-grid-1x2-fill"></i></span>
+                        <span class="txt-link">Área do Coordenador</span>
+                    </a>
+                </li>
+            }
+            else if (User.IsInRole("Professor"))
+            {
+                <li class="item-menu">
+                    <a asp-controller="Estoque" asp-action="Selecionar">
+                        <span class="icon"><i class="bi bi-box-seam-fill"></i></span>
+                        <span class="txt-link">Área do Professor</span>
+                    </a>
+                </li>
+            }
+
+            <li class="item-menu mt-auto mb-3">
+                <form class="form-inline m-0 w-100" asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="btn-logout w-100 text-start">
+                        <span class="icon"><i class="bi bi-box-arrow-left"></i></span>
+                        <span class="txt-link">Sair</span>
+                    </button>
+                </form>
             </li>
         }
-        else if (User.IsInRole("Professor"))
+        else
         {
-            <li class="nav-item">
-                <a class="nav-link text-success" asp-controller="Estoque" asp-action="Selecionar">Área do Professor</a>
+            <li class="item-menu">
+                <a asp-controller="Account" asp-action="Register">
+                    <span class="icon"><i class="bi bi-person-plus-fill"></i></span>
+                    <span class="txt-link">Criar Conta</span>
+                </a>
+            </li>
+            <li class="item-menu">
+                <a asp-controller="Account" asp-action="Login">
+                    <span class="icon"><i class="bi bi-box-arrow-in-right"></i></span>
+                    <span class="txt-link">Entrar</span>
+                </a>
             </li>
         }
+    </ul>
+</nav>
 
-        <li class="nav-item">
-            <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">Sair</button>
-            </form>
-        </li>
-    }
-    else
-    {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Criar Conta</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Entrar</a>
-        </li>
-    }
-</ul>

@@ -1,27 +1,28 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> signInManager;
 
-
-
 <!DOCTYPE html>
-
 <html>
 <head>
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link href="https://cdn.datatables.net/v/dt/dt-2.3.5/datatables.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link href="~/js/site.js" rel="stylesheet" />
-    <link href="https://cdn.datatables.net/v/dt/dt-2.3.5/datatables.min.css" rel="stylesheet" integrity="sha384-Lv8lYSJkh1Hc5kB9lk2YbbGdchMRCuAcwUOYWZ3Q/YIfKNVW+6W+V57wxKNv1D8l" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 </head>
-
 <body>
+    <button class="btn d-md-none btn-mobile-toggle" id="btn-toggle-mobile">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
     <header>
-        <nav class="menu-lateral">
+        <nav class="menu-lateral" id="sidebar">
             <div class="btn-expandir" id="btn-exp">
                 <i class="bi bi-list"></i>
             </div>
@@ -51,14 +52,38 @@
             </ul>
         </nav>
     </header>
-    <div>
+
+    <div id="main-content">
         @RenderBody()
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/v/dt/dt-2.3.5/datatables.min.js" integrity="sha384-qH0inyYSCOpaLgM/WSarLVnq0ULwworkGFzUI+E6bpx0DUCIsJePT0TRDnLnkcU1" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/v/dt/dt-2.3.5/datatables.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const btnMobile = document.getElementById('btn-toggle-mobile');
+            const btnExp = document.getElementById('btn-exp');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const mainContent = document.getElementById('main-content');
+
+            function toggleMobileMenu() {
+                sidebar.classList.toggle('aberta');
+                overlay.classList.toggle('active');
+            }
+
+            function toggleDesktopMenu() {
+                sidebar.classList.toggle('recolhida');
+                mainContent.classList.toggle('expandido');
+            }
+
+            if (btnMobile) btnMobile.addEventListener('click', toggleMobileMenu);
+            if (overlay) overlay.addEventListener('click', toggleMobileMenu);
+            if (btnExp) btnExp.addEventListener('click', toggleDesktopMenu);
+        });
+    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

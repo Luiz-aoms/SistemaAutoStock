@@ -2,37 +2,52 @@
     ViewData["Title"] = "Catálogo de Mercado";
     Layout = "~/Views/Shared/_LayoutPROF.cshtml";
 
-    // SIMULANDO UMA LISTA DE PRODUTOS REAIS
     var produtosWeb = new List<dynamic> {
-        new { Nome = "Óleo Sintético 5W30 Magnatec (1L)", Marca = "Castrol", Categoria = "Lubrificantes", Preco = 54.90, Margem = "40%", Aplicacao = "GM, Ford, Fiat", Icone = "bi-droplet-half", Cor = "text-warning" },
-        new { Nome = "Bateria Automotiva 60Ah (M60GD)", Marca = "Moura", Categoria = "Elétrica", Preco = 459.00, Margem = "30%", Aplicacao = "Universal", Icone = "bi-lightning-charge", Cor = "text-danger" },
-        new { Nome = "Kit Pastilha de Freio Dianteira", Marca = "Cobreq", Categoria = "Freios", Preco = 78.50, Margem = "55%", Aplicacao = "Palio, Uno, Mobi", Icone = "bi-disc", Cor = "text-secondary" },
-        new { Nome = "Jogo de Velas de Ignição (BPR6EY)", Marca = "NGK", Categoria = "Ignição", Preco = 85.00, Margem = "45%", Aplicacao = "Linha VW AP / Fiat Fire", Icone = "bi-plugin", Cor = "text-primary" },
-        new { Nome = "Kit Revisão (Filtros Ar, Óleo, Comb.)", Marca = "Tecfil", Categoria = "Filtros", Preco = 92.00, Margem = "60%", Aplicacao = "Onix, Prisma 1.0", Icone = "bi-funnel", Cor = "text-info" },
-        new { Nome = "Palheta Limpador Parabrisa (22/16)", Marca = "Bosch", Categoria = "Acessórios", Preco = 65.00, Margem = "70%", Aplicacao = "HB20, Gol G6", Icone = "bi-cloud-rain", Cor = "text-success" }
-    };
+    new { Nome = "Óleo Sintético 5W30 Magnatec (1L)", Marca = "Castrol", Categoria = "Lubrificantes", Preco = 54.90, Margem = "40%", Aplicacao = "GM, Ford, Fiat", Icone = "bi-droplet-half", Cor = "text-warning" },
+    new { Nome = "Bateria Automotiva 60Ah (M60GD)", Marca = "Moura", Categoria = "Elétrica", Preco = 459.00, Margem = "30%", Aplicacao = "Universal", Icone = "bi-lightning-charge", Cor = "text-danger" },
+    new { Nome = "Kit Pastilha de Freio Dianteira", Marca = "Cobreq", Categoria = "Freios", Preco = 78.50, Margem = "55%", Aplicacao = "Palio, Uno, Mobi", Icone = "bi-disc", Cor = "text-secondary" },
+    new { Nome = "Jogo de Velas de Ignição (BPR6EY)", Marca = "NGK", Categoria = "Ignição", Preco = 85.00, Margem = "45%", Aplicacao = "Linha VW AP / Fiat Fire", Icone = "bi-plugin", Cor = "text-primary" },
+    new { Nome = "Kit Revisão (Filtros Ar, Óleo, Comb.)", Marca = "Tecfil", Categoria = "Filtros", Preco = 92.00, Margem = "60%", Aplicacao = "Onix, Prisma 1.0", Icone = "bi-funnel", Cor = "text-info" },
+    new { Nome = "Palheta Limpador Parabrisa (22/16)", Marca = "Bosch", Categoria = "Acessórios", Preco = 65.00, Margem = "70%", Aplicacao = "HB20, Gol G6", Icone = "bi-cloud-rain", Cor = "text-success" },
+    new { Nome = "Amortecedor Dianteiro (Par)", Marca = "Monroe", Categoria = "Suspensão", Preco = 489.90, Margem = "35%", Aplicacao = "Gol G5, G6, Voyage", Icone = "bi-arrows-collapse", Cor = "text-dark" },
+    new { Nome = "Kit Embreagem Completo", Marca = "Luk", Categoria = "Transmissão", Preco = 345.50, Margem = "40%", Aplicacao = "Celta, Corsa Clássic", Icone = "bi-gear-wide-connected", Cor = "text-secondary" },
+    new { Nome = "Correia Dentada", Marca = "Gates", Categoria = "Motor", Preco = 68.90, Margem = "50%", Aplicacao = "Fox, Crossfox 1.6", Icone = "bi-arrow-repeat", Cor = "text-dark" },
+    new { Nome = "Bomba D'água", Marca = "Urba", Categoria = "Arrefecimento", Preco = 125.00, Margem = "45%", Aplicacao = "Corolla 1.8/2.0 (09-14)", Icone = "bi-water", Cor = "text-info" },
+    new { Nome = "Fluido de Freio DOT 4 (500ml)", Marca = "Varga", Categoria = "Fluidos", Preco = 28.50, Margem = "65%", Aplicacao = "Universal", Icone = "bi-droplet", Cor = "text-danger" },
+    new { Nome = "Disco de Freio Dianteiro (Par)", Marca = "Fremax", Categoria = "Freios", Preco = 165.00, Margem = "35%", Aplicacao = "HB20, Fit, City", Icone = "bi-record-circle", Cor = "text-secondary" },
+    new { Nome = "Lâmpada Super Branca H4 (Par)", Marca = "Osram", Categoria = "Iluminação", Preco = 89.90, Margem = "55%", Aplicacao = "Farol Principal Universal", Icone = "bi-lightbulb", Cor = "text-warning" },
+    new { Nome = "Filtro de Ar Condicionado (Cabine)", Marca = "Wega", Categoria = "Filtros", Preco = 35.00, Margem = "65%", Aplicacao = "Civic 2013+", Icone = "bi-wind", Cor = "text-info" },
+    new { Nome = "Bandeja de Suspensão Dianteira", Marca = "Nakata", Categoria = "Suspensão", Preco = 145.80, Margem = "40%", Aplicacao = "Palio, Uno Mille", Icone = "bi-wrench", Cor = "text-dark" },
+    new { Nome = "Aditivo de Radiador Rosa (1L)", Marca = "Paraflu", Categoria = "Arrefecimento", Preco = 32.90, Margem = "50%", Aplicacao = "Pronto Uso Universal", Icone = "bi-thermometer-half", Cor = "text-danger" },
+    new { Nome = "Rolamento de Roda Traseira", Marca = "SKF", Categoria = "Rodas", Preco = 78.90, Margem = "45%", Aplicacao = "Onix, Prisma", Icone = "bi-life-preserver", Cor = "text-secondary" },
+    new { Nome = "Jogo de Cabos de Vela", Marca = "NGK", Categoria = "Ignição", Preco = 98.00, Margem = "40%", Aplicacao = "Fiesta, Ka Zetec Rocam", Icone = "bi-lightning", Cor = "text-primary" },
+    new { Nome = "Refil Bomba de Combustível", Marca = "Bosch", Categoria = "Alimentação", Preco = 115.00, Margem = "35%", Aplicacao = "Flex Universal", Icone = "bi-fuel-pump", Cor = "text-warning" },
+    new { Nome = "Óleo de Câmbio 75W90 (1L)", Marca = "Motul", Categoria = "Lubrificantes", Preco = 95.50, Margem = "30%", Aplicacao = "Câmbio Manual Universal", Icone = "bi-gear", Cor = "text-success" }
+};
 }
 
-<div class="container-fluid p-4" style="margin-left: 260px; width: calc(100% - 260px);">
+<div class="container-fluid p-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+
+        <div class="w-100 mb-3 mb-md-0">
             <h2 class="fw-bold mb-0"><i class="bi bi-cart3 text-primary"></i> Catálogo do Mercado</h2>
             <p class="text-muted">Produtos reais encontrados na web para reposição.</p>
         </div>
 
-        <div style="min-width: 350px;">
-            <div class="input-group shadow-sm">
+        <div class="w-100 d-flex justify-content-md-end">
+            <div class="input-group shadow-sm" style="width: 100%; max-width: 400px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                 <input type="text" id="campoPesquisa" class="form-control border-start-0" placeholder="Pesquisar peça ou marca...">
             </div>
         </div>
+
     </div>
 
-    <div class="row g-4" id="gradeProdutos">
+    <div class="row g-4 gap-2" id="gradeProdutos">
         @foreach (var item in produtosWeb)
         {
-            <div class="col-12 col-md-6 col-lg-4 produto-item">
+            <div class="col-12 col-md-6 col-lg-4 produto-item" style="padding-top: 20px;">
                 <div class="card h-100 border-0 shadow-sm transition-hover">
                     <div class="card-header bg-light border-0 text-center py-4">
                         <i class="bi @item.Icone @item.Cor" style="font-size: 3rem;"></i>
