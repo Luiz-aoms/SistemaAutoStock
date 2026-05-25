@@ -93,9 +93,8 @@ namespace SistemaAutoStock.Controllers
                 ModelState.AddModelError(string.Empty, "Usuário ou senha inválidos."); 
             } return View(loginVM); 
         }
-        // =======================================================
-        // ACESSO NEGADO
-        // =======================================================
+
+
         [HttpGet("acesso-negado")]
         public IActionResult AccessDenied()
         {

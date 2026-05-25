@@ -1,10 +1,16 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace SistemaAutoStock.BancoDeDados
 {
     public class Estoque
     {
+        //--------------------------------
+        // Propriedades
+        //--------------------------------
         public int? id_peca { get; set; }
         public string? nome_peca { get; set; }
         public int? quantidade { get; set; }
@@ -13,6 +19,7 @@ namespace SistemaAutoStock.BancoDeDados
         public float? peso { get; set; }
         public float? valor { get; set; }
         public string? tipo { get; set; }
+        public bool? registro_ativo { get; set; }
 
         SqlConnection con;
 
@@ -23,15 +30,12 @@ namespace SistemaAutoStock.BancoDeDados
         {
             try
             {
-                // Ler o arquivo de config
                 IConfigurationRoot o_Config = new ConfigurationBuilder()
                    .SetBasePath(Directory.GetCurrentDirectory())
                    .AddJsonFile(@".\appsettings.json")
                    .Build();
 
                 string strConexao = o_Config.GetConnectionString(@"Default");
-
-                // Prepara a conexão com o BD
                 con = new SqlConnection(strConexao);
             }
             catch (Exception ex)
@@ -44,31 +48,55 @@ namespace SistemaAutoStock.BancoDeDados
         // Métodos
         //--------------------------------
 
-        public void Inserir()
+        public DataTable SelecionarTodos()
         {
             try
             {
-                string cmdSQL = "Insert Into tb_pecas " +
-                    "(nome_peca, quantidade, status, material, peso, valor, tipo) " +
-                    "Values(@NomePeca, @Quantidade, @Status, @Material, @Peso, @Valor, @Tipo)";
-
-                SqlCommand cmd = new SqlCommand(cmdSQL, con);
-
-                cmd.Parameters.AddWithValue("@NomePeca", nome_peca);
-                cmd.Parameters.AddWithValue("@Quantidade", quantidade);
-                cmd.Parameters.AddWithValue("@Status", status);
-                cmd.Parameters.AddWithValue("@Material", material);
-                cmd.Parameters.AddWithValue("@Peso", peso);
-                cmd.Parameters.AddWithValue("@Valor", valor);
-                cmd.Parameters.AddWithValue("@Tipo", tipo);
+                string sql = "SELECT * FROM tb_pecas";
+                SqlDataAdapter o_DataAdapter = new SqlDataAdapter(sql, con);
 
                 con.Open();
-                cmd.ExecuteNonQuery();
-                con.Close();
+                DataTable dtPesquisa = new DataTable();
+                o_DataAdapter.Fill(dtPesquisa);
+
+                return dtPesquisa;
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+            }
+        }
+
+        public void Inserir()
+        {
+            try
+            {
+                string sql = @"INSERT INTO tb_pecas (nome_peca, quantidade, status, material, peso, valor, tipo, registro_ativo) 
+                               VALUES (@nome, @qtd, @status, @material, @peso, @valor, @tipo, 1)";
+
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@nome", nome_peca ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@qtd", quantidade ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@status", status ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@material", material ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@peso", peso ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@valor", valor ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@tipo", tipo ?? (object)DBNull.Value);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open) con.Close();
             }
         }
 
@@ -76,110 +104,96 @@ namespace SistemaAutoStock.BancoDeDados
         {
             try
             {
-                // Prepara o comando SQL para atualizar a peça pelo ID
-                string cmdSQL = "Update tb_pecas Set nome_peca = @NomePeca, quantidade = @Quantidade, " +
-                                "status = @Status, material = @Material, peso = @Peso, valor = @Valor, tipo = @Tipo " +
-                                "Where id_peca = @IdPeca";
+                string sql = @"UPDATE tb_pecas SET nome_peca = @nome, quantidade = @qtd, status = @status, 
+                               material = @material, peso = @peso, valor = @valor, tipo = @tipo 
+                               WHERE id_peca = @id";
 
-                SqlCommand cmd = new SqlCommand(cmdSQL, con);
-
-                cmd.Parameters.AddWithValue("@IdPeca", id_peca);
-                cmd.Parameters.AddWithValue("@NomePeca", nome_peca);
-                cmd.Parameters.AddWithValue("@Quantidade", quantidade);
-                cmd.Parameters.AddWithValue("@Status", status);
-                cmd.Parameters.AddWithValue("@Material", material);
-                cmd.Parameters.AddWithValue("@Peso", peso);
-                cmd.Parameters.AddWithValue("@Valor", valor);
-                cmd.Parameters.AddWithValue("@Tipo", tipo);
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@id", id_peca);
+                cmd.Parameters.AddWithValue("@nome", nome_peca ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@qtd", quantidade ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@status", status ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@material", material ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@peso", peso ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@valor", valor ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@tipo", tipo ?? (object)DBNull.Value);
 
                 con.Open();
                 cmd.ExecuteNonQuery();
-                con.Close();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
+            finally
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+            }
         }
 
-        public void Excluir()
+        public void ExcluirParcial()
         {
             try
             {
-                // Deleta a peça com base no ID
-                string cmdSQL = "Delete From tb_pecas Where id_peca = @IdPeca";
+                string sql = "UPDATE tb_pecas SET registro_ativo = 0 WHERE id_peca = @id";
 
-                SqlCommand cmd = new SqlCommand(cmdSQL, con);
-
-                cmd.Parameters.AddWithValue("@IdPeca", id_peca);
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@id", id_peca);
 
                 con.Open();
                 cmd.ExecuteNonQuery();
-                con.Close();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open) con.Close();
             }
         }
 
-        public DataTable SelecionarTodos()
+        public void Ativar()
         {
             try
             {
-                // Busca todas as peças
-                string cmdSQL = "SELECT * FROM tb_pecas ORDER BY id_peca";
+                string sql = "UPDATE tb_pecas SET registro_ativo = 1 WHERE id_peca = @id";
 
-                SqlDataAdapter o_DataAdapter = new SqlDataAdapter(cmdSQL, con);
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@id", id_peca);
 
                 con.Open();
-                DataTable dtPesquisa = new DataTable();
-                int qtdLinhasAfetadas = o_DataAdapter.Fill(dtPesquisa);
-                con.Close();
-
-                if (qtdLinhasAfetadas > 0)
-                {
-                    return dtPesquisa;
-                }
-                else
-                {
-                    return null;
-                }
+                cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open) con.Close();
             }
         }
 
-        public DataTable SelecionarPorID()
+        public void ExcluirTotal()
         {
             try
             {
-                // Busca uma peça específica pelo ID
-                string cmdSQL = "SELECT * FROM tb_pecas WHERE id_peca = @IdPeca";
+                string sql = "DELETE FROM tb_pecas WHERE id_peca = @id";
 
-                SqlDataAdapter o_DataAdapter = new SqlDataAdapter(cmdSQL, con);
-
-                o_DataAdapter.SelectCommand.Parameters.AddWithValue("@IdPeca", id_peca);
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@id", id_peca);
 
                 con.Open();
-                DataTable dtPesquisa = new DataTable();
-                int qtdLinhasAfetadas = o_DataAdapter.Fill(dtPesquisa);
-                con.Close();
-
-                if (qtdLinhasAfetadas > 0)
-                {
-                    return dtPesquisa;
-                }
-                else
-                {
-                    return null;
-                }
+                cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open) con.Close();
             }
         }
     }

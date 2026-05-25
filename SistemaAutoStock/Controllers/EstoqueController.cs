@@ -7,6 +7,8 @@ using SistemaAutoStock.ViewModels;
 using System.Security.Claims;
 using ClosedXML.Excel;
 using System.IO;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace SistemaAutoStock.Controllers  
 {
@@ -71,19 +73,47 @@ namespace SistemaAutoStock.Controllers
             catch (Exception ex)
             {
                 TempData["MsgErro"] = "Erro ao salvar: " + ex.Message;
-            }
+            }   
             return RedirectToAction("Selecionar");
         }
 
         [HttpPost("excluir")]
-        public IActionResult ExcluirProcessar(EstoqueViewModel o_EstoqueVM)
+        public IActionResult ExcluirTProcessar(EstoqueViewModel o_EstoqueVM)
         {
             try
             {
                 Estoque o_Estoque = new Estoque();
                 o_Estoque.id_peca = o_EstoqueVM.IdPeca;
-                o_Estoque.Excluir();
+                o_Estoque.ExcluirTotal();
                 TempData["MsgSucesso"] = "Item removido com sucesso!";
+            }
+            catch (Exception ex) { TempData["MsgErro"] = "Erro ao excluir peça!!!"; }
+            return RedirectToAction("Selecionar");
+        }
+
+        [HttpPost("excluir-parcial")]
+        public IActionResult ExcluirParcialProcessar(EstoqueViewModel o_EstoqueVM)
+        {
+            try
+            {
+                Estoque o_Estoque = new Estoque();
+                o_Estoque.id_peca = o_EstoqueVM.IdPeca;
+                o_Estoque.ExcluirParcial();
+                TempData["MsgSucesso"] = "Item desativado com sucesso!";
+            }
+            catch (Exception ex) { TempData["MsgErro"] = ex.Message; }
+            return RedirectToAction("Selecionar");
+        }
+
+        [HttpPost("ativar")]
+        public IActionResult AtivarProcessar(EstoqueViewModel o_EstoqueVM)
+        {
+            try
+            {
+                Estoque o_Estoque = new Estoque();
+                o_Estoque.id_peca = o_EstoqueVM.IdPeca;
+                o_Estoque.Ativar();
+                TempData["MsgSucesso"] = "Item reativado com sucesso!";
             }
             catch (Exception ex) { TempData["MsgErro"] = ex.Message; }
             return RedirectToAction("Selecionar");
@@ -125,15 +155,15 @@ namespace SistemaAutoStock.Controllers
         }
 
         [HttpGet("historico")]
+        [Authorize(Roles = "Coordenador")]
+
         public IActionResult Historico()
         {
             try
             {
-                // Instancia a classe e busca a tabela de histórico
                 Movimentacao o_Movimentacao = new Movimentacao();
                 DataTable dtHistorico = o_Movimentacao.SelecionarTodos();
 
-                // Retorna a View enviando o DataTable (se for nulo, envia um vazio para não quebrar a tela)
                 return View(dtHistorico ?? new DataTable());
             }
             catch (Exception ex)
@@ -155,7 +185,6 @@ namespace SistemaAutoStock.Controllers
                 {
                     var worksheet = workbook.Worksheets.Add("Historico de Movimentacoes");
 
-                    // 1. Montando o Cabeçalho do Excel
                     worksheet.Cell(1, 1).Value = "Data e Hora";
                     worksheet.Cell(1, 2).Value = "Usuário";
                     worksheet.Cell(1, 3).Value = "Peça";
@@ -165,12 +194,10 @@ namespace SistemaAutoStock.Controllers
                     worksheet.Cell(1, 7).Value = "Saldo Final";
                     worksheet.Cell(1, 8).Value = "Observação";
 
-                    // Pintando o cabeçalho de cinza
                     var headerRange = worksheet.Range("A1:H1");
                     headerRange.Style.Font.Bold = true;
                     headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
 
-                    // 2. Preenchendo os dados
                     int linha = 2;
                     foreach (DataRow row in dt.Rows)
                     {
@@ -191,10 +218,8 @@ namespace SistemaAutoStock.Controllers
                         linha++;
                     }
 
-                    // Ajusta a largura das colunas automaticamente
                     worksheet.Columns().AdjustToContents();
 
-                    // 3. Retornando o arquivo para download
                     using (var stream = new MemoryStream())
                     {
                         workbook.SaveAs(stream);

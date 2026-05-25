@@ -8,9 +8,11 @@ namespace SistemaAutoStock.BancoDeDados
 {
     public class Movimentacao
     {
-        // Propriedades espelhando a tabela de movimentação
+        //--------------------------------
+        // Propriedades
+        //--------------------------------
         public int? id_movi { get; set; }
-        public string? tipo_movi { get; set; } // 'E' para Entrada, 'S' para Saída
+        public string? tipo_movi { get; set; } 
         public DateTime? data_hora { get; set; }
         public int? quantidade { get; set; }
         public int? id_peca { get; set; }
@@ -51,12 +53,10 @@ namespace SistemaAutoStock.BancoDeDados
             {
                 con.Open();
 
-                // Inicia a transação: garante que as duas tabelas sejam atualizadas juntas
                 using (SqlTransaction transacao = con.BeginTransaction())
                 {
                     try
                     {
-                        // 1. Descobrir a quantidade atual da peça antes de movimentar
                         int qtdAnterior = 0;
                         string sqlBusca = "SELECT quantidade FROM tb_pecas WHERE id_peca = @IdPeca";
 
@@ -69,10 +69,8 @@ namespace SistemaAutoStock.BancoDeDados
                                 qtdAnterior = Convert.ToInt32(result);
                         }
 
-                        // Alimenta a propriedade para ser usada no INSERT logo abaixo
                         quantidade_anterior = qtdAnterior;
 
-                        // 2. MATEMÁTICA: Atualizar o estoque na tabela principal (tb_pecas)
                         string sqlAtualizaEstoque = "";
 
                         if (tipo_movi == "E")
@@ -91,7 +89,6 @@ namespace SistemaAutoStock.BancoDeDados
                             cmdEstoque.ExecuteNonQuery();
                         }
 
-                        // 3. Inserir o registro na tabela de movimentação
                         string sqlInsert = @"INSERT INTO tb_movimentacao 
                             (tipo_movi, data_hora, quantidade, id_peca, quantidade_anterior, id_usuario, observacao) 
                             VALUES (@TipoMovi, GETDATE(), @Quantidade, @IdPeca, @QtdAnterior, @IdUsuario, @Observacao)";
@@ -104,18 +101,15 @@ namespace SistemaAutoStock.BancoDeDados
                             cmdInsert.Parameters.AddWithValue("@QtdAnterior", quantidade_anterior);
                             cmdInsert.Parameters.AddWithValue("@IdUsuario", id_usuario);
 
-                            // Campos que podem ser nulos
                             cmdInsert.Parameters.AddWithValue("@Observacao", string.IsNullOrEmpty(observacao) ? (object)DBNull.Value : observacao);
 
                             cmdInsert.ExecuteNonQuery();
                         }
 
-                        // Se tudo deu certo, efetiva as mudanças no banco!
                         transacao.Commit();
                     }
                     catch (Exception ex)
                     {
-                        // Se deu qualquer erro no caminho, desfaz tudo
                         transacao.Rollback();
                         throw new Exception("Erro durante a transação: " + ex.Message);
                     }
@@ -127,7 +121,6 @@ namespace SistemaAutoStock.BancoDeDados
             }
             finally
             {
-                // Garante que a conexão será fechada independente de erro ou sucesso
                 if (con.State == ConnectionState.Open)
                     con.Close();
             }
@@ -136,7 +129,6 @@ namespace SistemaAutoStock.BancoDeDados
         {
             try
             {
-                // Trazemos os dados da movimentação e o nome da peça usando INNER JOIN
                 string cmdSQL = @"
                     SELECT 
                     m.id_movi, 
@@ -176,7 +168,6 @@ namespace SistemaAutoStock.BancoDeDados
         {
             try
             {
-                // Busca o extrato de movimentações de uma peça específica, da mais recente pra mais antiga
                 string cmdSQL = "SELECT * FROM tb_movimentacao WHERE id_peca = @IdPeca ORDER BY data_hora DESC";
 
                 SqlDataAdapter o_DataAdapter = new SqlDataAdapter(cmdSQL, con);
