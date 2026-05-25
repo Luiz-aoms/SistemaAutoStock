@@ -83,7 +83,6 @@ namespace SistemaAutoStock.BancoDeDados
 
                 SqlCommand cmd = new SqlCommand(cmdSQL, con);
 
-                // Passa os parâmetros da classe para o SQL
                 cmd.Parameters.AddWithValue("@IdPeca", id_peca);
                 cmd.Parameters.AddWithValue("@NomePeca", nome_peca);
                 cmd.Parameters.AddWithValue("@Quantidade", quantidade);
