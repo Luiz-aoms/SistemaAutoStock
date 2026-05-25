@@ -12,7 +12,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
 
         <div class="w-100 mb-3 mb-md-0">
-            <h1 class="text-dark mb-0 fs-3 fs-md-1"><i class="bi bi-speedometer2"></i> Painel de Controle</h1>
+            <h1 class="text-dark mb-0 fs-3 fs-md-1 text-title"><i class="bi bi-speedometer2 text-novo"></i> Painel de Controle</h1>
             <ol class="breadcrumb mb-0 mt-1">
                 <li class="breadcrumb-item active">Visão Geral do Estoque</li>
             </ol>
@@ -151,29 +151,21 @@
         let ordemCrescenteValor = false;
 
         document.addEventListener("DOMContentLoaded", function () {
-
-            const nomesPecas = [@Html.Raw(Model.NomesParaGrafico ?? "''")];
+            const nomesPecasQtd = [@Html.Raw(Model.NomesParaGrafico ?? "''")];
             const quantidadesPecas = [@Html.Raw(Model.ValoresParaGrafico ?? "0")];
-            const valoresPatrimonioBruto = [@Html.Raw(Model.ValoresTotaisParaGrafico ?? "0")];
 
-            let listaValorInicial = [];
-            for (let i = 0; i < nomesPecas.length; i++) {
-                listaValorInicial.push({ label: nomesPecas[i], valor: valoresPatrimonioBruto[i] });
-            }
-            listaValorInicial.sort((a, b) => b.valor - a.valor);
-
-            const nomesPecasValor = listaValorInicial.map(item => item.label);
-            const valoresPatrimonio = listaValorInicial.map(item => item.valor);
+            const nomesPecasValor = [@Html.Raw(Model.NomesParaGraficoValor ?? "''")];
+            const valoresPatrimonio = [@Html.Raw(Model.ValoresTotaisParaGrafico ?? "0")];
 
             const ctxBar = document.getElementById('meuGraficoBarras');
             if (ctxBar) {
                 graficoBarrasObj = new Chart(ctxBar, {
                     type: 'bar',
                     data: {
-                        labels: [...nomesPecas],
+                        labels: nomesPecasQtd,
                         datasets: [{
                             label: 'Quantidade em Estoque',
-                            data: [...quantidadesPecas],
+                            data: quantidadesPecas,
                             backgroundColor: 'rgba(13, 110, 253, 0.8)',
                             borderColor: 'rgba(13, 110, 253, 1)',
                             borderWidth: 1
@@ -200,10 +192,7 @@
                             hoverOffset: 4
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
+                    options: { responsive: true, maintainAspectRatio: false }
                 });
             }
 
@@ -212,10 +201,10 @@
                 graficoValorTotalObj = new Chart(ctxValorTotal, {
                     type: 'bar',
                     data: {
-                        labels: [...nomesPecasValor],
+                        labels: nomesPecasValor,
                         datasets: [{
                             label: 'Valor Total (R$)',
-                            data: [...valoresPatrimonio],
+                            data: valoresPatrimonio,
                             backgroundColor: 'rgba(25, 135, 84, 0.8)',
                             borderColor: 'rgba(25, 135, 84, 1)',
                             borderWidth: 1,
@@ -230,9 +219,7 @@
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    callback: function (value) {
-                                        return 'R$ ' + value.toLocaleString('pt-BR');
-                                    }
+                                    callback: (value) => 'R$ ' + value.toLocaleString('pt-BR')
                                 }
                             }
                         }
@@ -243,59 +230,21 @@
 
         function inverterOrdemBarras() {
             if (!graficoBarrasObj) return;
-
-            let dados = graficoBarrasObj.data.datasets[0].data;
-            let labels = graficoBarrasObj.data.labels;
-
-            let lista = [];
-            for (let i = 0; i < dados.length; i++) {
-                lista.push({ label: labels[i], valor: dados[i] });
-            }
-
+            graficoBarrasObj.data.labels.reverse();
+            graficoBarrasObj.data.datasets[0].data.reverse();
             ordemCrescenteBarras = !ordemCrescenteBarras;
-            lista.sort((a, b) => ordemCrescenteBarras ? a.valor - b.valor : b.valor - a.valor);
-
-            for (let i = 0; i < lista.length; i++) {
-                graficoBarrasObj.data.labels[i] = lista[i].label;
-                graficoBarrasObj.data.datasets[0].data[i] = lista[i].valor;
-            }
-
-            let icone = document.getElementById('iconeOrdemBarras');
-            if (ordemCrescenteBarras) {
-                icone.classList.replace('bi-sort-down', 'bi-sort-up');
-            } else {
-                icone.classList.replace('bi-sort-up', 'bi-sort-down');
-            }
-
+            document.getElementById('iconeOrdemBarras').classList.toggle('bi-sort-down');
+            document.getElementById('iconeOrdemBarras').classList.toggle('bi-sort-up');
             graficoBarrasObj.update();
         }
 
         function inverterOrdemValor() {
             if (!graficoValorTotalObj) return;
-
-            let dados = graficoValorTotalObj.data.datasets[0].data;
-            let labels = graficoValorTotalObj.data.labels;
-
-            let lista = [];
-            for (let i = 0; i < dados.length; i++) {
-                lista.push({ label: labels[i], valor: dados[i] });
-            }
-
+            graficoValorTotalObj.data.labels.reverse();
+            graficoValorTotalObj.data.datasets[0].data.reverse();
             ordemCrescenteValor = !ordemCrescenteValor;
-            lista.sort((a, b) => ordemCrescenteValor ? a.valor - b.valor : b.valor - a.valor);
-
-            for (let i = 0; i < lista.length; i++) {
-                graficoValorTotalObj.data.labels[i] = lista[i].label;
-                graficoValorTotalObj.data.datasets[0].data[i] = lista[i].valor;
-            }
-
-            let icone = document.getElementById('iconeOrdemValor');
-            if (ordemCrescenteValor) {
-                icone.classList.replace('bi-sort-down', 'bi-sort-up');
-            } else {
-                icone.classList.replace('bi-sort-up', 'bi-sort-down');
-            }
-
+            document.getElementById('iconeOrdemValor').classList.toggle('bi-sort-down');
+            document.getElementById('iconeOrdemValor').classList.toggle('bi-sort-up');
             graficoValorTotalObj.update();
         }
 

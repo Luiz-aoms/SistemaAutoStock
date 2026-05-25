@@ -25,6 +25,7 @@
         <nav class="menu-lateral" id="sidebar">
             <div class="btn-expandir" id="btn-exp">
                 <i class="bi bi-list"></i>
+                <img src="~/images/logo-senai.png" class="logo-side">
             </div>
 
             <ul>
@@ -44,12 +45,41 @@
                     </a>
                 </li>
                 <li class="item-menu">
-                    <a href="/Estoque/Recomendacoes">
+                    <a asp-controller="Estoque" asp-action="Recomendacoes">
                         <span class="icon"><i class="bi bi-star-fill"></i></span>
                         <span class="txt-link">Recomendações</span>
                     </a>
                 </li>
+                <li class="item-menu">
+                    <a asp-controller="Estoque" asp-action="historico">
+                        <span class="icon"><i class="bi bi-card-checklist"></i></span>
+                        <span class="txt-link">Histórico Mov.</span>
+                    </a>
+                </li>
+
             </ul>
+            <form asp-area="" asp-controller="Account" asp-action="logout" id="logoutForm"
+                  method="post" class="navbar-left">
+                <div class="user-widget" role="region" aria-label="Usuário conectado">
+                    <div class="user-info">
+                        <div class="avatar" aria-hidden="true">
+                            <!-- ícone SVG simbólico de usuário -->
+                            <svg viewBox="0 0 24 24" width="36" height="36" focusable="false" aria-hidden="true">
+                                <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z" fill="currentColor" />
+                            </svg>
+                            <span class="status-dot" title="Online" aria-hidden="true"></span>
+                        </div>
+
+                        <div class="user-text">
+                            <div class="user-name" id="user-name">@User.Identity.Name</div>
+                        </div>
+                    </div>
+
+                    <button class="logout-btn" id="logout-btn" aria-label="Sair">
+                        <i class="bi bi-box-arrow-left"></i>
+                    </button>
+                </div>
+            </form>
         </nav>
     </header>
 

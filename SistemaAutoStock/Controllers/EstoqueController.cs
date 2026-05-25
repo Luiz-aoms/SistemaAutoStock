@@ -4,8 +4,11 @@ using System.Data;
 using System;
 using SistemaAutoStock.BancoDeDados;
 using SistemaAutoStock.ViewModels;
+using System.Security.Claims;
+using ClosedXML.Excel;
+using System.IO;
 
-namespace SistemaAutoStock.Controllers
+namespace SistemaAutoStock.Controllers  
 {
     [Authorize(Roles = "Professor, Coordenador")]
     [Route("estoque")]
@@ -54,14 +57,10 @@ namespace SistemaAutoStock.Controllers
                 {
                     Estoque o_Estoque = new Estoque();
 
-                    // Mapeia os campos básicos
                     MapearVMparaModel(o_EstoqueVM, o_Estoque);
 
-                    // Garante o ID para a atualização
                     o_Estoque.id_peca = o_EstoqueVM.IdPeca;
 
-                    // Atribuição direta (Sem Convert ou Parse)
-                    // Se o valor for nulo na VM, ele salva como 0 no banco
                     o_Estoque.peso = o_EstoqueVM.Peso ?? 0;
                     o_Estoque.valor = o_EstoqueVM.Valor ?? 0;
 
@@ -90,7 +89,127 @@ namespace SistemaAutoStock.Controllers
             return RedirectToAction("Selecionar");
         }
 
-        // Método auxiliar para evitar repetição de código
+        [HttpPost("movimentar")]
+        public IActionResult MovimentarProcessar(MovimentacaoViewModel o_MovimentacaoVM)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    Movimentacao o_Movimentacao = new Movimentacao();
+
+                    o_Movimentacao.id_peca = o_MovimentacaoVM.IdPeca;
+                    o_Movimentacao.tipo_movi = o_MovimentacaoVM.TipoMovimentacao;
+                    o_Movimentacao.quantidade = o_MovimentacaoVM.Quantidade;
+                    o_Movimentacao.observacao = o_MovimentacaoVM.Observacao;
+
+                    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                    o_Movimentacao.id_usuario =userId;
+
+                    o_Movimentacao.Registrar();
+
+                    TempData["MsgSucesso"] = "Movimentação realizada e estoque atualizado com sucesso!";
+                }
+                else
+                {
+                    TempData["MsgErro"] = "Dados informados estão inválidos para efetuar a movimentação.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["MsgErro"] = $"Erro ao processar movimentação: {ex.Message}";
+            }
+
+            return RedirectToAction("Selecionar");
+        }
+
+        [HttpGet("historico")]
+        public IActionResult Historico()
+        {
+            try
+            {
+                // Instancia a classe e busca a tabela de histórico
+                Movimentacao o_Movimentacao = new Movimentacao();
+                DataTable dtHistorico = o_Movimentacao.SelecionarTodos();
+
+                // Retorna a View enviando o DataTable (se for nulo, envia um vazio para não quebrar a tela)
+                return View(dtHistorico ?? new DataTable());
+            }
+            catch (Exception ex)
+            {
+                TempData["MsgErro"] = $"Erro ao carregar o histórico: {ex.Message}";
+                return View(new DataTable());
+            }
+        }
+
+        [HttpGet("exportar-historico")]
+        public IActionResult ExportarHistoricoExcel()
+        {
+            try
+            {
+                Movimentacao o_Movimentacao = new Movimentacao();
+                DataTable dt = o_Movimentacao.SelecionarTodos();
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Historico de Movimentacoes");
+
+                    // 1. Montando o Cabeçalho do Excel
+                    worksheet.Cell(1, 1).Value = "Data e Hora";
+                    worksheet.Cell(1, 2).Value = "Usuário";
+                    worksheet.Cell(1, 3).Value = "Peça";
+                    worksheet.Cell(1, 4).Value = "Tipo";
+                    worksheet.Cell(1, 5).Value = "Qtd. Anterior";
+                    worksheet.Cell(1, 6).Value = "Movimentado";
+                    worksheet.Cell(1, 7).Value = "Saldo Final";
+                    worksheet.Cell(1, 8).Value = "Observação";
+
+                    // Pintando o cabeçalho de cinza
+                    var headerRange = worksheet.Range("A1:H1");
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                    // 2. Preenchendo os dados
+                    int linha = 2;
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        string tipo = row["tipo_movi"].ToString() == "E" ? "Entrada" : "Saída";
+                        int qtdAnterior = Convert.ToInt32(row["quantidade_anterior"]);
+                        int qtdMovimentada = Convert.ToInt32(row["quantidade"]);
+                        int saldoFinal = row["tipo_movi"].ToString() == "E" ? (qtdAnterior + qtdMovimentada) : (qtdAnterior - qtdMovimentada);
+
+                        worksheet.Cell(linha, 1).Value = Convert.ToDateTime(row["data_hora"]).ToString("dd/MM/yyyy HH:mm");
+                        worksheet.Cell(linha, 2).Value = row["nome_usuario"]?.ToString();
+                        worksheet.Cell(linha, 3).Value = row["nome_peca"].ToString();
+                        worksheet.Cell(linha, 4).Value = tipo;
+                        worksheet.Cell(linha, 5).Value = qtdAnterior;
+                        worksheet.Cell(linha, 6).Value = qtdMovimentada;
+                        worksheet.Cell(linha, 7).Value = saldoFinal;
+                        worksheet.Cell(linha, 8).Value = row["observacao"]?.ToString();
+
+                        linha++;
+                    }
+
+                    // Ajusta a largura das colunas automaticamente
+                    worksheet.Columns().AdjustToContents();
+
+                    // 3. Retornando o arquivo para download
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        var content = stream.ToArray();
+                        return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Historico_Estoque_{DateTime.Now:dd-MM-yyyy}.xlsx");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["MsgErro"] = $"Erro ao exportar arquivo: {ex.Message}";
+                return RedirectToAction("Historico");
+            }
+        }
+
         private void MapearVMparaModel(EstoqueViewModel vm, Estoque model)
         {
             model.nome_peca = vm.NomePeca;

@@ -6,7 +6,7 @@ using SistemaAutoStock.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. CONFIGURAÇÃO DE SERVIÇOS
+// CONFIGURAÇÃO DE SERVIÇOS
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<appDbContext>(options =>
@@ -26,17 +26,14 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 1;
 });
 
-// Configuração do Cookie de Login e Acesso Negado
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Account/Login";
-    options.AccessDeniedPath = "/Account/AccessDenied";
-    options.LogoutPath = "/Account/Logout";
+    options.LoginPath = "/login";
+    options.AccessDeniedPath = "/acesso-negado";
+    options.LogoutPath = "/logout";
 });
 
 var app = builder.Build();
-
-// --- 2. CONFIGURAÇÃO DO PIPELINE
 
 if (!app.Environment.IsDevelopment())
 {
@@ -62,5 +59,11 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
+
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/login");
+    return Task.CompletedTask;
+});
 
 app.Run();

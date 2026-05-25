@@ -10,9 +10,12 @@
         public int EstoqueMedio { get; set; }
         public int EstoqueBom { get; set; }
 
-        // Dados formatados para o gráfico
+        // Dados para o gráfico de QUANTIDADE (Azul)
         public string? NomesParaGrafico { get; set; }
         public string? ValoresParaGrafico { get; set; }
+
+        // Dados para o gráfico de VALOR PATRIMONIAL (Verde)
+        public string? NomesParaGraficoValor { get; set; }
         public string ValoresTotaisParaGrafico { get; set; }
     }
 }

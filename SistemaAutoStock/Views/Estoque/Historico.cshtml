@@ -1,0 +1,212 @@
+﻿@using System.Data
+@model DataTable
+
+@{
+    ViewData["Title"] = "Histórico do Estoque";
+    Layout = "../Shared/_LayoutPROF.cshtml";
+}
+
+<div class="container-fluid py-4" id="Container-Estoque">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div class="w-100 mb-3 mb-md-0">
+            <h2 class="fw-bold text-dark mb-1 text-title"><i class="bi bi-clock-history me-2 text-novo"></i> Histórico de Movimentações</h2>
+            <ol class="breadcrumb mb-0 mt-1">
+                <li class="breadcrumb-item active">Acompanhe as entradas e saídas de peças</li>
+            </ol>
+        </div>
+
+        <div class="acoes-topo-container d-flex flex-wrap gap-2 w-100 justify-content-md-end">
+            <a href="@Url.Action("ExportarHistoricoExcel", "Estoque")" class="btn btn-success fw-bold px-4 shadow-sm flex-grow-1 flex-md-grow-0" style="border-radius: 10px;">
+                <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["MsgErro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm d-flex align-items-center mb-4 justify-content-between" role="alert" style="border-radius: 12px;">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>&ensp; @TempData["MsgErro"]</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>
+        </div>
+    }
+
+    <div class="filter-section mb-4">
+        <div class="row g-4">
+            <div class="col-12 col-lg-8">
+                <label class="form-label-custom label-filtro"><i class="bi bi-search"></i> PESQUISAR NO HISTÓRICO</label>
+                <div class="input-group-modern d-flex align-items-center">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="inputBusca" class="form-control" placeholder="Buscar por peça, usuário, observação...">
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <label class="form-label-custom label-filtro"><i class="bi bi-funnel"></i> TIPO DE MOVIMENTAÇÃO</label>
+                <div class="input-group-modern d-flex align-items-center">
+                    <span class="input-group-text"><i class="bi bi-arrow-left-right"></i></span>
+                    <select id="filtroTipo" class="form-select">
+                        <option value="">Todas as   </option>
+                        <option value="Entrada">Apenas Entradas</option>
+                        <option value="Saída">Apenas Saídas</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="Table-Estoque">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-uppercase small fw-bold">Data e Hora</th>
+                        <th class="py-3 text-uppercase small fw-bold">Usuário</th>
+                        <th class="py-3 text-uppercase small fw-bold">Peça</th>
+                        <th class="py-3 text-uppercase small fw-bold text-center">Tipo</th>
+                        <th class="py-3 text-uppercase small fw-bold text-center">Nova Qtd</th>
+                        <th class="py-3 text-uppercase small fw-bold">Observação</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyHistorico">
+                    @if (Model.Rows.Count > 0)
+                    {
+                        foreach (DataRow row in Model.Rows)
+                        {
+                            string tipoMovi = row["tipo_movi"].ToString();
+                            string badgeClass = tipoMovi == "E" ? "text-success bg-success-subtle" : "text-danger bg-danger-subtle";
+                            string textoTipo = tipoMovi == "E" ? "Entrada" : "Saída";
+
+                            int qtdAnterior = Convert.ToInt32(row["quantidade_anterior"]);
+                            int qtdMovimentada = Convert.ToInt32(row["quantidade"]);
+                            int saldoFinal = tipoMovi == "E" ? (qtdAnterior + qtdMovimentada) : (qtdAnterior - qtdMovimentada);
+                            string sinalMatematica = tipoMovi == "E" ? "+" : "-";
+
+                            <tr>
+                                <td class="ps-4 text-secondary text-sm">@Convert.ToDateTime(row["data_hora"]).ToString("dd/MM/yy HH:mm")</td>
+                                <td class="fw-semibold text-secondary">
+                                    <i class="bi bi-person-circle me-1"></i> @(row["nome_usuario"]?.ToString() ?? "Sistema")
+                                </td>
+                                <td class="fw-bold text-dark">@row["nome_peca"]</td>
+                                <td class="text-center">
+                                    <span class="badge @badgeClass border px-2.5 py-1.5 fw-semibold rounded-2 text-xs">
+                                        @if (tipoMovi == "E")
+                                        {
+                                            <i class="bi bi-arrow-down-circle-fill me-1"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-arrow-up-circle-fill me-1"></i>
+                                        }
+                                        @textoTipo
+                                    </span>
+                                </td>
+                                <td class="text-center text-sm">
+                                    <span class="text-muted">@qtdAnterior</span>
+                                    <strong class="@(tipoMovi == "E" ? "text-success" : "text-danger") mx-1">@sinalMatematica @qtdMovimentada</strong>
+                                    <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                                    <span class="fw-bold text-dark border px-2 py-1 rounded bg-light">@saldoFinal</span>
+                                </td>
+                                <td class="text-secondary text-sm">@row["observacao"]</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                Nenhuma movimentação registrada até o momento.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap px-2 pb-4">
+        <div class="text-muted small fw-bold" id="infoPaginacao">
+            Mostrando 0 de 0 itens
+        </div>
+        <nav>
+            <ul class="pagination mb-0" id="paginacaoUl"></ul>
+        </nav>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const inputBusca = document.getElementById('inputBusca');
+        const filtroTipo = document.getElementById('filtroTipo');
+        const tbody = document.getElementById('tbodyHistorico');
+
+        if (!tbody) return;
+
+        const todasAsLinhas = Array.from(tbody.getElementsByTagName('tr'));
+        const paginacaoUl = document.getElementById('paginacaoUl');
+        const infoPaginacao = document.getElementById('infoPaginacao');
+
+        if(todasAsLinhas.length === 1 && todasAsLinhas[0].innerText.includes("Nenhuma movimentação")) return;
+
+        let itensPorPagina = 10;
+        let paginaAtual = 1;
+        let linhasFiltradas = [];
+
+        function filtrarTabela() {
+            const termoBusca = inputBusca.value.toLowerCase();
+            const tipoSelecionado = filtroTipo.value.toLowerCase();
+
+            linhasFiltradas = todasAsLinhas.filter(linha => {
+                const textoLinha = linha.innerText.toLowerCase();
+                const textoTipo = linha.cells[3].innerText.toLowerCase();
+
+                const correspondeBusca = textoLinha.includes(termoBusca);
+                const correspondeTipo = tipoSelecionado === "" || textoTipo.includes(tipoSelecionado);
+
+                return correspondeBusca && correspondeTipo;
+            });
+
+            paginaAtual = 1;
+            atualizarExibicao();
+        }
+
+        function atualizarExibicao() {
+            const totalItens = linhasFiltradas.length;
+            const totalPaginas = Math.ceil(totalItens / itensPorPagina);
+
+            const inicio = (paginaAtual - 1) * itensPorPagina;
+            const fim = inicio + itensPorPagina;
+
+            todasAsLinhas.forEach(l => l.style.display = "none");
+            linhasFiltradas.slice(inicio, fim).forEach(l => l.style.display = "");
+
+            infoPaginacao.innerText = `Mostrando ${totalItens > 0 ? inicio + 1 : 0} a ${Math.min(fim, totalItens)} de ${totalItens} movimentações`;
+
+            renderizarBotoes(totalPaginas);
+        }
+
+        function renderizarBotoes(total) {
+            paginacaoUl.innerHTML = "";
+            if (total <= 1) return;
+
+            for (let i = 1; i <= total; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === paginaAtual ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="javascript:void(0)">${i}</a>`;
+                li.addEventListener('click', () => {
+                    paginaAtual = i;
+                    atualizarExibicao();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                paginacaoUl.appendChild(li);
+            }
+        }
+
+        inputBusca.addEventListener('keyup', filtrarTabela);
+        filtroTipo.addEventListener('change', filtrarTabela);
+
+        filtrarTabela();
+    });
+</script>

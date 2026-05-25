@@ -19,31 +19,28 @@ namespace SistemaAutoStock.Controllers
 
             float qtdAcumulada = 0;
             float valorAcumulado = 0;
-            int critico = 0;
-            int medio = 0;
-            int bom = 0;
+            int critico = 0, medio = 0, bom = 0;
 
-            // lista temporária para guardar TODOS os itens e podermos ordená-los
             var todosOsItens = new List<(string Nome, float Quantidade, float ValorTotal)>();
 
             foreach (DataRow row in dt.Rows)
             {
                 float q = row["quantidade"] != DBNull.Value ? Convert.ToSingle(row["quantidade"]) : 0;
                 float v = row["valor"] != DBNull.Value ? Convert.ToSingle(row["valor"]) : 0;
+                float totalItem = q * v;
 
                 qtdAcumulada += q;
-                valorAcumulado += (q * v);
+                valorAcumulado += totalItem;
 
                 if (q <= 5) critico++; else if (q <= 10) medio++; else bom++;
 
                 string nome = row["nome_peca"]?.ToString() ?? "Sem Nome";
-
-                // Guarda os dados desta peça na nossa lista temporária
-                todosOsItens.Add((nome, q, q * v));
+                todosOsItens.Add((nome, q, totalItem));
             }
 
-            // Ordena pela Quantidade (do maior para o menor) e pega os 5 primeiros
-            var top5Itens = todosOsItens.OrderByDescending(item => item.Quantidade).Take(5).ToList();
+            var top5Qtd = todosOsItens.OrderByDescending(x => x.Quantidade).Take(5).ToList();
+
+            var top5Valor = todosOsItens.OrderByDescending(x => x.ValorTotal).Take(5).ToList();
 
             var viewModel = new DashboardViewModel
             {
@@ -54,10 +51,11 @@ namespace SistemaAutoStock.Controllers
                 EstoqueMedio = medio,
                 EstoqueBom = bom,
 
-                // Extraí apenas os nomes, quantidades e valores já ordenados!
-                NomesParaGrafico = string.Join(",", top5Itens.Select(x => $"'{x.Nome}'")),
-                ValoresParaGrafico = string.Join(",", top5Itens.Select(x => x.Quantidade.ToString(System.Globalization.CultureInfo.InvariantCulture))),
-                ValoresTotaisParaGrafico = string.Join(",", top5Itens.Select(x => x.ValorTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)))
+                NomesParaGrafico = string.Join(",", top5Qtd.Select(x => $"'{x.Nome}'")),
+                ValoresParaGrafico = string.Join(",", top5Qtd.Select(x => x.Quantidade.ToString(System.Globalization.CultureInfo.InvariantCulture))),
+
+                NomesParaGraficoValor = string.Join(",", top5Valor.Select(x => $"'{x.Nome}'")),
+                ValoresTotaisParaGrafico = string.Join(",", top5Valor.Select(x => x.ValorTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)))
             };
 
             return View(viewModel);

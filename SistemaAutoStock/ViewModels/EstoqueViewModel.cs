@@ -15,8 +15,10 @@ namespace SistemaAutoStock.ViewModels
         [Required(ErrorMessage = "Digite o MATERIAL da Peça/Kit.")]
         public string? Material { get; set; }
         [Required(ErrorMessage = "Digite o PESO da Peça/Kit.")]
+        //[MaxLength(4)]
         public float? Peso { get; set; }
         [Required(ErrorMessage = "Digite o VALOR da Peça/Kit.")]
+        //[MaxLength(7)]
         public float? Valor { get; set; }
         [Required(ErrorMessage = "Informe o Tipo. ex: peça, kit...")]
         public string? Tipo { get; set; }

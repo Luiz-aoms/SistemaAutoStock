@@ -55,7 +55,7 @@ namespace SistemaAutoStock.Controllers
         // =======================================================
         // LOGIN
         // =======================================================
-        [HttpGet]
+        [HttpGet("login")]
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -63,41 +63,54 @@ namespace SistemaAutoStock.Controllers
         }
 
         [HttpPost("login")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel loginVM, string? returnUrl = null)
+        [ValidateAntiForgeryToken] 
+        public async Task<IActionResult> Login(LoginViewModel loginVM, string? returnUrl = null) 
+        { 
+            ViewData["ReturnUrl"] = returnUrl; 
+            if (!string.IsNullOrEmpty(loginVM.UserName) && !string.IsNullOrEmpty(loginVM.Password)) 
+            { var result = await _signInManager.PasswordSignInAsync(loginVM.UserName, loginVM.Password, isPersistent: false, lockoutOnFailure: false); 
+                if (result.Succeeded) 
+                { 
+                    var user = await _userManager.FindByNameAsync(loginVM.UserName); 
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)) 
+                    { 
+                        return Redirect(returnUrl); 
+                    } 
+                    if (await _userManager.IsInRoleAsync(user, "Coordenador")) 
+                    { 
+                        return RedirectToAction("Index", "Dashboard"); 
+                    } 
+                    else if (await _userManager.IsInRoleAsync(user, "Professor")) 
+                    { 
+                        return RedirectToAction("Selecionar", "Estoque"); 
+                    } 
+                    return Redirect("LoginView"); 
+                } 
+                else if (result.IsLockedOut) 
+                { 
+                    return RedirectToAction("Selecionar", "Estoque"); 
+                } 
+                ModelState.AddModelError(string.Empty, "Usuário ou senha inválidos."); 
+            } return View(loginVM); 
+        }
+        // =======================================================
+        // ACESSO NEGADO
+        // =======================================================
+        [HttpGet("acesso-negado")]
+        public IActionResult AccessDenied()
         {
-            ViewData["ReturnUrl"] = returnUrl;
-
-            if (!string.IsNullOrEmpty(loginVM.UserName) && !string.IsNullOrEmpty(loginVM.Password))
+            if (User.IsInRole("Professor"))
             {
-                var result = await _signInManager.PasswordSignInAsync(loginVM.UserName, loginVM.Password, isPersistent: false, lockoutOnFailure: false);
-
-                if (result.Succeeded)
-                {
-                    var user = await _userManager.FindByNameAsync(loginVM.UserName);
-
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    {
-                        return Redirect(returnUrl);
-                    }
-
-                    if (await _userManager.IsInRoleAsync(user, "Coordenador"))
-                    {
-                        return RedirectToAction("Index", "Dashboard");
-                    }
-                    else if (await _userManager.IsInRoleAsync(user, "Professor"))
-                    {
-                        return RedirectToAction("Selecionar", "Estoque");
-                    }
-
-                    return Redirect("LoginView");
-                }
-
-                ModelState.AddModelError(string.Empty, "Usuário ou senha inválidos.");
+                return RedirectToAction("", "Estoque");
             }
 
-            return View(loginVM);
+            else if (User.IsInRole("Coordenador"))
+            {
+                return RedirectToAction("dashboard", "Dashboard");
+            }
+            return Redirect("/login");
         }
+
 
         // =======================================================
         // LOGOUT
@@ -108,7 +121,7 @@ namespace SistemaAutoStock.Controllers
         {
             await _signInManager.SignOutAsync();
 
-            return RedirectToAction("Index", "Home");
+            return Redirect("/login");
         }
     }
 }
