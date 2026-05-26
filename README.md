@@ -65,8 +65,6 @@ AutoStock/
 
 ---
 
-# ⚙️ Como Executar o Projeto
-
 ## 📋 Pré-requisitos
 
 Antes de começar, você precisará ter instalado:
