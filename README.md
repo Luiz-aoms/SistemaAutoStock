@@ -53,6 +53,7 @@ Projeto desenvolvido como atividade acadêmica do curso de **Análise e Desenvol
 ```bash
 AutoStock/
 │
+├── BancoDeDados/
 ├── Controllers/
 ├── Models/
 ├── Views/
