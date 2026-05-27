@@ -66,16 +66,6 @@ AutoStock/
 
 ---
 
-## 📋 Pré-requisitos
-
-Antes de começar, você precisará ter instalado:
-
-- .NET SDK
-- SQL Server
-- Visual Studio 2022+
-
----
-
 # 👨‍💻 Equipe
 
 - Luiz Augusto Okada Mioto da Silva
