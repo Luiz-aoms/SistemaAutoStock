@@ -87,7 +87,7 @@ namespace SistemaAutoStock.Controllers
                 o_Estoque.ExcluirTotal();
                 TempData["MsgSucesso"] = "Item removido com sucesso!";
             }
-            catch (Exception ex) { TempData["MsgErro"] = "Erro ao excluir peça!!!"; }
+            catch (Exception ex) { TempData["MsgErro"] = "Erro ao excluir peça!"; }
             return RedirectToAction("Selecionar");
         }
 

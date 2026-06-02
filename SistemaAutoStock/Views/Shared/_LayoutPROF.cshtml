@@ -50,20 +50,20 @@
                         <span class="txt-link">Recomendações</span>
                     </a>
                 </li>
-                <li class="item-menu">
-                    <a asp-controller="Estoque" asp-action="historico">
-                        <span class="icon"><i class="bi bi-card-checklist"></i></span>
-                        <span class="txt-link">Histórico Mov.</span>
-                    </a>
-                </li>
-
+                @if(User.IsInRole("Coordenador")){
+                    <li class="item-menu">
+                        <a asp-controller="Estoque" asp-action="historico">
+                            <span class="icon"><i class="bi bi-card-checklist"></i></span>
+                            <span class="txt-link">Histórico Mov.</span>
+                        </a>
+                    </li>
+                }
             </ul>
             <form asp-area="" asp-controller="Account" asp-action="logout" id="logoutForm"
                   method="post" class="navbar-left">
                 <div class="user-widget" role="region" aria-label="Usuário conectado">
                     <div class="user-info">
                         <div class="avatar" aria-hidden="true">
-                            <!-- ícone SVG simbólico de usuário -->
                             <svg viewBox="0 0 24 24" width="36" height="36" focusable="false" aria-hidden="true">
                                 <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z" fill="currentColor" />
                             </svg>
