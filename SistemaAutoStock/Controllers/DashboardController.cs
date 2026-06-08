@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using SistemaAutoStock.ViewModels;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace SistemaAutoStock.Controllers
 {
@@ -21,10 +22,21 @@ namespace SistemaAutoStock.Controllers
             float valorAcumulado = 0;
             int critico = 0, medio = 0, bom = 0;
 
+            int totalItensAtivos = 0;
+
             var todosOsItens = new List<(string Nome, float Quantidade, float ValorTotal)>();
 
             foreach (DataRow row in dt.Rows)
             {
+                bool isAtivo = row["registro_ativo"] != DBNull.Value ? Convert.ToBoolean(row["registro_ativo"]) : false;
+
+                if (!isAtivo)
+                {
+                    continue;
+                }
+
+                totalItensAtivos++;
+
                 float q = row["quantidade"] != DBNull.Value ? Convert.ToSingle(row["quantidade"]) : 0;
                 float v = row["valor"] != DBNull.Value ? Convert.ToSingle(row["valor"]) : 0;
                 float totalItem = q * v;
@@ -32,19 +44,18 @@ namespace SistemaAutoStock.Controllers
                 qtdAcumulada += q;
                 valorAcumulado += totalItem;
 
-                if (q <= 5) critico++; else if (q <= 10) medio++; else bom++;
+                if (q < 5) critico++; else if (q <= 10) medio++; else bom++;
 
                 string nome = row["nome_peca"]?.ToString() ?? "Sem Nome";
                 todosOsItens.Add((nome, q, totalItem));
             }
 
             var top5Qtd = todosOsItens.OrderByDescending(x => x.Quantidade).Take(5).ToList();
-
             var top5Valor = todosOsItens.OrderByDescending(x => x.ValorTotal).Take(5).ToList();
 
             var viewModel = new DashboardViewModel
             {
-                TotalItens = dt.Rows.Count,
+                TotalItens = totalItensAtivos,
                 QtdTotal = qtdAcumulada,
                 ValorTotal = valorAcumulado.ToString("C2", new System.Globalization.CultureInfo("pt-BR")),
                 BaixoEstoque = critico,

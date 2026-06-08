@@ -125,6 +125,39 @@ namespace SistemaAutoStock.BancoDeDados
                     con.Close();
             }
         }
+        public int ObterQuantidadeAtualDaPeca(int? idPeca)
+        {
+            int quantidadeAtual = 0;
+
+            if (idPeca == null) return quantidadeAtual;
+
+            try
+            {
+                string sqlBusca = "SELECT quantidade FROM tb_pecas WHERE id_peca = @IdPeca";
+
+                con.Open();
+                using (SqlCommand cmdBusca = new SqlCommand(sqlBusca, con))
+                {
+                    cmdBusca.Parameters.AddWithValue("@IdPeca", idPeca);
+                    object result = cmdBusca.ExecuteScalar();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        quantidadeAtual = Convert.ToInt32(result);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao buscar a quantidade atual da peça: " + ex.Message);
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+            }
+
+            return quantidadeAtual;
+        }
         public DataTable SelecionarTodos()
         {
             try

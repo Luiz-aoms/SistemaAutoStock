@@ -126,16 +126,36 @@ namespace SistemaAutoStock.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    // Instanciamos o DAO logo no começo para poder usar os métodos dele
                     Movimentacao o_Movimentacao = new Movimentacao();
 
+                    // =========================================================================
+                    // NOVA VALIDAÇÃO: Bloquear saída maior que o estoque
+                    // =========================================================================
+
+                    // 1. Busca a quantidade atual da peça no banco de dados
+                    int estoqueAtual = o_Movimentacao.ObterQuantidadeAtualDaPeca(o_MovimentacaoVM.IdPeca);
+
+                    // 2. Verifica se é saída ("S") e se a pessoa pediu mais do que tem
+                    // Usei "S" porque vi no seu DAO que é assim que você salva a saída no banco.
+                    if (o_MovimentacaoVM.TipoMovimentacao == "S")
+                    {
+                        if (o_MovimentacaoVM.Quantidade > estoqueAtual)
+                        {
+                            TempData["MsgErro"] = $"Estoque insuficiente! Você tentou retirar {o_MovimentacaoVM.Quantidade}, mas há apenas {estoqueAtual} no estoque.";
+                            return RedirectToAction("Selecionar"); // Devolve para a tela sem salvar nada
+                        }
+                    }
+                    // =========================================================================
+
+                    // Se passou pela validação, preenche os dados e registra no banco
                     o_Movimentacao.id_peca = o_MovimentacaoVM.IdPeca;
                     o_Movimentacao.tipo_movi = o_MovimentacaoVM.TipoMovimentacao;
                     o_Movimentacao.quantidade = o_MovimentacaoVM.Quantidade;
                     o_Movimentacao.observacao = o_MovimentacaoVM.Observacao;
 
                     string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                    o_Movimentacao.id_usuario =userId;
+                    o_Movimentacao.id_usuario = userId;
 
                     o_Movimentacao.Registrar();
 
