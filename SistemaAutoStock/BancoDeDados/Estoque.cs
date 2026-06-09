@@ -75,7 +75,7 @@ namespace SistemaAutoStock.BancoDeDados
         {
             try
             {
-                string sql = @"INSERT INTO tb_pecas (nome_peca, quantidade, status, material, peso, valor, tipo, registro_ativo) 
+                string sql = @"INSERT INTO tb_pecas (nome_peca, quantidade, status, material, peso, valor, tipo, registro_ativo)
                                VALUES (@nome, @qtd, @status, @material, @peso, @valor, @tipo, 1)";
 
                 SqlCommand cmd = new SqlCommand(sql, con);
